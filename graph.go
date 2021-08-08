@@ -4,8 +4,10 @@ const (
 	entrySize      = 6
 	void      uint = 0
 
+	// hole
 	nextHole uint = 0
 
+	// vertex
 	identifier     uint = 0
 	previousVertex uint = 1
 	firstPositive  uint = 2
@@ -13,6 +15,7 @@ const (
 	firstNegative  uint = 4
 	lastNegative   uint = 5
 
+	// edge
 	positiveDirection uint = 0
 	positivePrevious  uint = 1
 	positiveNext      uint = 2
