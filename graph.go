@@ -1,41 +1,43 @@
 package klubok
 
 const (
-	entrySize = 6
-	void uint = 0
+	entrySize      = 6
+	void      uint = 0
 
-	identifier uint = 0
+	nextHole uint = 0
+
+	identifier     uint = 0
 	previousVertex uint = 1
-	firstPositive uint = 2
-	lastPositive uint = 3
-	firstNegative uint = 4
-	lastNegative uint = 5
+	firstPositive  uint = 2
+	lastPositive   uint = 3
+	firstNegative  uint = 4
+	lastNegative   uint = 5
 
 	positiveDirection uint = 0
-	positivePrevious uint = 1
-	positiveNext uint = 2
+	positivePrevious  uint = 1
+	positiveNext      uint = 2
 	negativeDirection uint = 3
-	negativePrevious uint = 4
-	negativeNext uint = 5
+	negativePrevious  uint = 4
+	negativeNext      uint = 5
 )
 
 type entry [entrySize]uint
 
 type Graph struct {
-	nextEntry uint
+	nextEntry  uint
 	lastVertex uint
-	lastHole uint
-	entries []entry
+	lastHole   uint
+	entries    []entry
 }
 
 func NewGraph() *Graph {
 	// void entry to make 0 a special value, it may contain graph metadata
-	voidEntry := entry {uint(0), uint(0), uint(0), uint(0), uint(0), uint(0)}
+	voidEntry := entry{uint(0), uint(0), uint(0), uint(0), uint(0), uint(0)}
 	return &Graph{
-		nextEntry: 1,
+		nextEntry:  1,
 		lastVertex: void,
-		lastHole: void,
-		entries: []entry{voidEntry},
+		lastHole:   void,
+		entries:    []entry{voidEntry},
 	}
 }
 
@@ -43,12 +45,12 @@ func (g *Graph) Create() uint {
 	tail := g.nextEntry
 
 	g.entries = append(g.entries, entry{
-		identifier: tail,
+		identifier:     tail,
 		previousVertex: g.lastVertex,
-		firstPositive: void,
-		lastPositive: void,
-		firstNegative: void,
-		lastNegative: void,
+		firstPositive:  void,
+		lastPositive:   void,
+		firstNegative:  void,
+		lastNegative:   void,
 	})
 	g.nextEntry++
 
@@ -110,17 +112,17 @@ func (g *Graph) Update(tail uint, head uint) {
 
 	edge := entry{
 		positiveDirection: head,
-		positivePrevious: void,
-		positiveNext: void,
+		positivePrevious:  void,
+		positiveNext:      void,
 		negativeDirection: tail,
-		negativePrevious: void,
-		negativeNext: void,
+		negativePrevious:  void,
+		negativeNext:      void,
 	}
-	
+
 	if tailVertex[positiveNext] == void {
 		tailVertex[positiveNext] = g.nextEntry
 	}
-	
+
 	if tailVertex[positivePrevious] != void {
 		positivePreviousEdge := g.entries[tailVertex[positivePrevious]]
 		positivePreviousEdge[positiveNext] = g.nextEntry
