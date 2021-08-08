@@ -19,7 +19,7 @@ const (
 	negativeNext uint = 5
 )
 
-type entry [6]uint
+type entry [entrySize]uint
 
 type Graph struct {
 	nextEntry uint
