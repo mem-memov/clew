@@ -66,4 +66,13 @@ func TestGraph(t *testing.T) {
 	if !reflect.DeepEqual(wantHeads, cHeads) {
 		t.Errorf("want %v, got %v", wantHeads, cHeads)
 	}
+
+	// b c
+
+	//g.Delete(a)
+	//
+	//wantHeads, cHeads = []uint{}, g.ReadNegative(c)
+	//if !reflect.DeepEqual(wantHeads, cHeads) {
+	//	t.Errorf("want %v, got %v", wantHeads, cHeads)
+	//}
 }

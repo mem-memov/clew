@@ -42,21 +42,34 @@ func NewGraph() *Graph {
 }
 
 func (g *Graph) Create() uint {
-	tail := g.nextEntry
+	if g.lastHole != void {
+		hole := g.entries[g.lastHole][nextHole]
+		tail := g.lastHole
+		g.lastHole = hole
+		g.entries[tail] = entry{
+			identifier:     tail,
+			previousVertex: g.lastVertex,
+			firstPositive:  void,
+			lastPositive:   void,
+			firstNegative:  void,
+			lastNegative:   void,
+		}
+		return tail
+	} else {
+		tail := g.nextEntry
+		g.entries = append(g.entries, entry{
+			identifier:     tail,
+			previousVertex: g.lastVertex,
+			firstPositive:  void,
+			lastPositive:   void,
+			firstNegative:  void,
+			lastNegative:   void,
+		})
+		g.nextEntry++
 
-	g.entries = append(g.entries, entry{
-		identifier:     tail,
-		previousVertex: g.lastVertex,
-		firstPositive:  void,
-		lastPositive:   void,
-		firstNegative:  void,
-		lastNegative:   void,
-	})
-	g.nextEntry++
-
-	g.lastVertex = tail
-
-	return tail
+		g.lastVertex = tail
+		return tail
+	}
 }
 
 func (g *Graph) ReadPositive(tail uint) []uint {
@@ -146,37 +159,48 @@ func (g *Graph) Update(tail uint, head uint) {
 	g.entries[tail] = tailVertex
 	g.entries[head] = headVertex
 
-	g.entries = append(g.entries, edge)
-	g.nextEntry++
+	if g.lastHole != void {
+		hole := g.entries[g.lastHole][nextHole]
+		g.entries[g.lastHole] = edge
+		g.lastHole = hole
+	} else {
+		g.entries = append(g.entries, edge)
+		g.nextEntry++
+	}
 }
 
 func (g *Graph) Delete(tail uint) {
 	tailVertex := g.entries[tail]
-	g.entries[tail] = entry{}
+	g.entries[tail] = entry{nextHole: g.lastHole}
+	g.lastHole = tail
 
 	if tailVertex[firstPositive] != void {
 		nextEdge := g.entries[tailVertex[firstPositive]]
-		g.entries[tailVertex[firstPositive]] = entry{}
+		g.entries[tailVertex[firstPositive]] = entry{nextHole: g.lastHole}
+		g.lastHole = tailVertex[firstPositive]
 
 		for {
 			if nextEdge[positiveNext] == void {
 				break
 			}
 			nextEdge = g.entries[nextEdge[positiveNext]]
-			g.entries[nextEdge[positiveNext]] = entry{}
+			g.entries[nextEdge[positiveNext]] = entry{nextHole: g.lastHole}
+			g.lastHole = nextEdge[positiveNext]
 		}
 	}
 
 	if tailVertex[firstNegative] != void {
 		nextEdge := g.entries[tailVertex[firstNegative]]
-		g.entries[tailVertex[firstNegative]] = entry{}
+		g.entries[tailVertex[firstNegative]] = entry{nextHole: g.lastHole}
+		g.lastHole = tailVertex[firstNegative]
 
 		for {
 			if nextEdge[negativeNext] == void {
 				break
 			}
 			nextEdge = g.entries[nextEdge[negativeNext]]
-			g.entries[nextEdge[negativeNext]] = entry{}
+			g.entries[nextEdge[negativeNext]] = entry{nextHole: g.lastHole}
+			g.lastHole = nextEdge[negativeNext]
 		}
 	}
 }
