@@ -57,7 +57,7 @@ func (g *Graph) Create() uint {
 	return tail
 }
 
-func (g *Graph) Read(tail uint) []uint {
+func (g *Graph) ReadPositive(tail uint) []uint {
 	heads := make([]uint, 0)
 
 	tailVertex := g.entries[tail]
@@ -80,6 +80,29 @@ func (g *Graph) Read(tail uint) []uint {
 	return heads
 }
 
+func (g *Graph) ReadNegative(tail uint) []uint {
+	heads := make([]uint, 0)
+
+	tailVertex := g.entries[tail]
+
+	if tailVertex[firstNegative] == void {
+		return heads
+	}
+
+	nextEdge := g.entries[tailVertex[firstNegative]]
+	heads = append(heads, nextEdge[negativeDirection])
+
+	for {
+		if nextEdge[negativeNext] == void {
+			break
+		}
+		nextEdge = g.entries[nextEdge[negativeNext]]
+		heads = append(heads, nextEdge[negativeDirection])
+	}
+
+	return heads
+}
+
 func (g *Graph) Update(tail uint, head uint) {
 
 	tailVertex := g.entries[tail]
@@ -96,7 +119,6 @@ func (g *Graph) Update(tail uint, head uint) {
 	
 	if tailVertex[positiveNext] == void {
 		tailVertex[positiveNext] = g.nextEntry
-		g.entries[tail] = tailVertex
 	}
 	
 	if tailVertex[positivePrevious] != void {
@@ -104,12 +126,10 @@ func (g *Graph) Update(tail uint, head uint) {
 		positivePreviousEdge[positiveNext] = g.nextEntry
 		g.entries[tailVertex[positivePrevious]] = positivePreviousEdge
 		tailVertex[lastPositive] = g.nextEntry
-		g.entries[tail] = tailVertex
 	}
 
 	if headVertex[negativeNext] == void {
 		headVertex[negativeNext] = g.nextEntry
-		g.entries[head] = headVertex
 	}
 
 	if headVertex[negativePrevious] != void {
@@ -117,7 +137,6 @@ func (g *Graph) Update(tail uint, head uint) {
 		negativePreviousEdge[negativeNext] = g.nextEntry
 		g.entries[headVertex[negativePrevious]] = negativePreviousEdge
 		headVertex[negativePrevious] = g.nextEntry
-		g.entries[head] = headVertex
 	}
 
 	tailVertex[positivePrevious] = g.nextEntry
@@ -130,5 +149,32 @@ func (g *Graph) Update(tail uint, head uint) {
 }
 
 func (g *Graph) Delete(tail uint) {
+	tailVertex := g.entries[tail]
+	g.entries[tail] = entry{}
 
+	if tailVertex[firstPositive] != void {
+		nextEdge := g.entries[tailVertex[firstPositive]]
+		g.entries[tailVertex[firstPositive]] = entry{}
+
+		for {
+			if nextEdge[positiveNext] == void {
+				break
+			}
+			nextEdge = g.entries[nextEdge[positiveNext]]
+			g.entries[nextEdge[positiveNext]] = entry{}
+		}
+	}
+
+	if tailVertex[firstNegative] != void {
+		nextEdge := g.entries[tailVertex[firstNegative]]
+		g.entries[tailVertex[firstNegative]] = entry{}
+
+		for {
+			if nextEdge[negativeNext] == void {
+				break
+			}
+			nextEdge = g.entries[nextEdge[negativeNext]]
+			g.entries[nextEdge[negativeNext]] = entry{}
+		}
+	}
 }
