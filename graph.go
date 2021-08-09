@@ -1,51 +1,36 @@
 package klubok
 
 const (
-	entrySize      = 6
-	void      uint = 0
-
-	// hole
-	nextHole uint = 0
-
-	// vertex
-	identifier     uint = 0
-	previousVertex uint = 1
-	firstPositive  uint = 2
-	lastPositive   uint = 3
-	firstNegative  uint = 4
-	lastNegative   uint = 5
-
-	// edge
-	positiveDirection uint = 0
-	positivePrevious  uint = 1
-	positiveNext      uint = 2
-	negativeDirection uint = 3
-	negativePrevious  uint = 4
-	negativeNext      uint = 5
+	entrySize          = 6
+	void      position = 0
 )
 
-type entry [entrySize]uint
+type position uint
 
 type Graph struct {
-	nextEntry  uint
-	lastVertex uint
-	lastHole   uint
-	entries    []entry
+	nextEntry position
+	vertices  vertices
+	edges     edges
+	holes     holes
 }
 
 func NewGraph() *Graph {
 	// void entry to make 0 a special value, it may contain graph metadata
-	voidEntry := entry{uint(0), uint(0), uint(0), uint(0), uint(0), uint(0)}
+	voidEntry := newEntry()
+	entries := &sliceStorage{entries: []entry{voidEntry}}
 	return &Graph{
-		nextEntry:  1,
-		lastVertex: void,
-		lastHole:   void,
-		entries:    []entry{voidEntry},
+		nextEntry: 1,
+		vertices:  newVertices(entries, void),
+		edges:     newEdges(entries),
+		holes:     newHoles(entries, void),
 	}
 }
 
 func (g *Graph) Create() uint {
-	if g.lastHole != void {
+
+	if g.holes.exist() {
+		newVertex := g.vertices.create(g.holes.last())
+		g.holes.consume(newVertex)
 		hole := g.entries[g.lastHole][nextHole]
 		tail := g.lastHole
 		g.lastHole = hole
@@ -123,54 +108,44 @@ func (g *Graph) ReadNegative(tail uint) []uint {
 
 func (g *Graph) Update(tail uint, head uint) {
 
-	tailVertex := g.entries[tail]
-	headVertex := g.entries[head]
+	tailVertex := g.vertices.read(position(tail))
+	headVertex := g.vertices.read(position(head))
 
-	edge := entry{
-		positiveDirection: head,
-		positivePrevious:  void,
-		positiveNext:      void,
-		negativeDirection: tail,
-		negativePrevious:  void,
-		negativeNext:      void,
-	}
+	edgePosition := g.nextEntry
+	newEdge := newEmptyEdge()
+	newEdge.setPositiveVertex(tailVertex)
+	newEdge.setNegativeVertex(headVertex)
 
-	if tailVertex[positiveNext] == void {
-		tailVertex[positiveNext] = g.nextEntry
-	}
+	tailVertex.setNextPositiveEdgeIfEmpty(edgePosition)
 
 	if tailVertex[positivePrevious] != void {
-		edge[positivePrevious] = tailVertex[positivePrevious]
+		newEdge[positivePrevious] = tailVertex[positivePrevious]
 		positivePreviousEdge := g.entries[tailVertex[positivePrevious]]
-		positivePreviousEdge[positiveNext] = g.nextEntry
+		positivePreviousEdge[positiveNext] = edgePosition
 		g.entries[tailVertex[positivePrevious]] = positivePreviousEdge
-		tailVertex[lastPositive] = g.nextEntry
+		tailVertex[lastPositive] = edgePosition
 	}
 
-	if headVertex[negativeNext] == void {
-		headVertex[negativeNext] = g.nextEntry
-	}
+	headVertex.setNextNegativeEdgeIfEmpty(edgePosition)
 
 	if headVertex[negativePrevious] != void {
-		edge[negativePrevious] = headVertex[negativePrevious]
+		newEdge[negativePrevious] = headVertex[negativePrevious]
 		negativePreviousEdge := g.entries[headVertex[negativePrevious]]
-		negativePreviousEdge[negativeNext] = g.nextEntry
+		negativePreviousEdge[negativeNext] = edgePosition
 		g.entries[headVertex[negativePrevious]] = negativePreviousEdge
-		headVertex[negativePrevious] = g.nextEntry
+		headVertex[negativePrevious] = edgePosition
 	}
 
-	tailVertex[positivePrevious] = g.nextEntry
-	headVertex[negativePrevious] = g.nextEntry
-	g.entries[tail] = tailVertex
-	g.entries[head] = headVertex
+	tailVertex.setPreviousPositiveEdge(edgePosition)
+	headVertex.setPreviousNegativeEdge(edgePosition)
 
-	if g.lastHole != void {
-		hole := g.entries[g.lastHole][nextHole]
-		g.entries[g.lastHole] = edge
-		g.lastHole = hole
+	g.vertices.update(tailVertex)
+	g.vertices.update(headVertex)
+
+	if g.holes.exist() {
+		g.holes.consume(newEdge)
 	} else {
-		g.entries = append(g.entries, edge)
-		g.nextEntry++
+		g.nextEntry = g.edges.append(newEdge)
 	}
 }
 
