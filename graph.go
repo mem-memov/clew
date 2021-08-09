@@ -140,6 +140,7 @@ func (g *Graph) Update(tail uint, head uint) {
 	}
 
 	if tailVertex[positivePrevious] != void {
+		edge[positivePrevious] = tailVertex[positivePrevious]
 		positivePreviousEdge := g.entries[tailVertex[positivePrevious]]
 		positivePreviousEdge[positiveNext] = g.nextEntry
 		g.entries[tailVertex[positivePrevious]] = positivePreviousEdge
@@ -151,6 +152,7 @@ func (g *Graph) Update(tail uint, head uint) {
 	}
 
 	if headVertex[negativePrevious] != void {
+		edge[negativePrevious] = headVertex[negativePrevious]
 		negativePreviousEdge := g.entries[headVertex[negativePrevious]]
 		negativePreviousEdge[negativeNext] = g.nextEntry
 		g.entries[headVertex[negativePrevious]] = negativePreviousEdge
