@@ -2,23 +2,25 @@ package klubok
 
 type vertices struct {
 	lastVertex position
-	entries storage
+	entries    entries
 }
 
-func newVertices(s storage, l position) vertices {
+func newVertices(entries entries, lastVertex position) vertices {
 	return vertices{
-		lastVertex: l,
-		entries: s,
+		lastVertex: lastVertex,
+		entries:    entries,
 	}
 }
 
-func (v vertices) create(p position) vertex {
-	vertex := newVertex(p)
+func (v vertices) create(position position) vertex {
+	vertex := newVertex(position, v.lastVertex)
+	v.lastVertex = position
+
 	return vertex
 }
 
-func (v vertices) read(p position) vertex {
-	return newVertex(v.entries.read(p))
+func (v vertices) read(position position) vertex {
+	return newVertexWithEntry(position, v.entries.read(position))
 }
 
 func (v vertices) update(vx vertex) {

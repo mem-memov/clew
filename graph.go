@@ -29,8 +29,8 @@ func NewGraph() *Graph {
 func (g *Graph) Create() uint {
 
 	if g.holes.exist() {
-		newVertex := g.vertices.create(g.holes.last())
-		g.holes.consume(newVertex)
+		tailVertex := g.vertices.create(g.holes.last())
+		g.holes.consume(tailVertex)
 		hole := g.entries[g.lastHole][nextHole]
 		tail := g.lastHole
 		g.lastHole = hole
@@ -150,37 +150,26 @@ func (g *Graph) Update(tail uint, head uint) {
 }
 
 func (g *Graph) Delete(tail uint) {
-	tailVertex := g.entries[tail]
-	g.entries[tail] = entry{nextHole: g.lastHole}
-	g.lastHole = tail
+	tailVertex := g.vertices.read(position(tail))
+	g.holes.produce(tailVertex)
 
-	if tailVertex[firstPositive] != void {
-		nextEdge := g.entries[tailVertex[firstPositive]]
-		g.entries[tailVertex[firstPositive]] = entry{nextHole: g.lastHole}
-		g.lastHole = tailVertex[firstPositive]
+	if tailVertex.hasFirstPositiveEdge() {
+		nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
+		g.holes.produce(nextEdge)
 
-		for {
-			if nextEdge[positiveNext] == void {
-				break
-			}
-			nextEdge = g.entries[nextEdge[positiveNext]]
-			g.entries[nextEdge[positiveNext]] = entry{nextHole: g.lastHole}
-			g.lastHole = nextEdge[positiveNext]
+		for !nextEdge.hasNextPositiveEdge() {
+			nextEdge = nextEdge.getNextPositiveEdge(g.edges)
+			g.holes.produce(nextEdge)
 		}
 	}
 
-	if tailVertex[firstNegative] != void {
-		nextEdge := g.entries[tailVertex[firstNegative]]
-		g.entries[tailVertex[firstNegative]] = entry{nextHole: g.lastHole}
-		g.lastHole = tailVertex[firstNegative]
+	if tailVertex.hasFirstNegativeEdge() {
+		nextEdge := tailVertex.getFirstNegativeEdge(g.edges)
+		g.holes.produce(nextEdge)
 
-		for {
-			if nextEdge[negativeNext] == void {
-				break
-			}
-			nextEdge = g.entries[nextEdge[negativeNext]]
-			g.entries[nextEdge[negativeNext]] = entry{nextHole: g.lastHole}
-			g.lastHole = nextEdge[negativeNext]
+		for !nextEdge.hasNextNegativeEdge() {
+			nextEdge = nextEdge.getNextNegativeEdge(g.edges)
+			g.holes.produce(nextEdge)
 		}
 	}
 }

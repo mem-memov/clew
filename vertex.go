@@ -9,36 +9,62 @@ const (
 	lastNegative   position = 5
 )
 
-type vertex entry
+type vertex struct {
+	position position
+	entry    entry
+}
 
-func newVertex(e entry) vertex {
-	return vertex(e)
+func newVertex(position position, previousVertexPosition position) vertex {
+	entry := newEntry()
+	entry[identifier] = position
+	entry[previousVertex] = previousVertexPosition
+	return vertex{position: position, entry: entry}
+}
+
+func newVertexWithEntry(position position, entry entry) vertex {
+	return vertex{position: position, entry: entry}
 }
 
 func (v vertex) getPosition() position {
-	return v[identifier]
+	return v.entry[identifier]
+}
+
+func (v vertex) hasFirstPositiveEdge() bool {
+	return v.entry[firstPositive] != void
+}
+
+func (v vertex) getFirstPositiveEdge(edges edges) edge {
+	return edges.read(v.entry[firstPositive])
+}
+
+func (v vertex) hasFirstNegativeEdge() bool {
+	return v.entry[firstNegative] != void
+}
+
+func (v vertex) getFirstNegativeEdge(edges edges) edge {
+	return edges.read(v.entry[firstNegative])
 }
 
 func (v vertex) setPreviousPositiveEdge(edgePosition position) {
-	v[positivePrevious] = edgePosition
+	v.entry[positivePrevious] = edgePosition
 }
 
 func (v vertex) setNextPositiveEdgeIfEmpty(edgePosition position) {
-	if v[positiveNext] == void {
-		v[positiveNext] = edgePosition
+	if v.entry[positiveNext] == void {
+		v.entry[positiveNext] = edgePosition
 	}
 }
 
 func (v vertex) setPreviousNegativeEdge(edgePosition position) {
-	v[negativePrevious] = edgePosition
+	v.entry[negativePrevious] = edgePosition
 }
 
 func (v vertex) setNextNegativeEdgeIfEmpty(edgePosition position) {
-	if v[negativeNext] == void {
-		v[negativeNext] = edgePosition
+	if v.entry[negativeNext] == void {
+		v.entry[negativeNext] = edgePosition
 	}
 }
 
-func (v vertex) update(s storage) {
-	s.update(v[identifier], entry(v))
+func (v vertex) update(s entries) {
+	s.update(v.entry[identifier], v.entry)
 }

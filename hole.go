@@ -4,13 +4,20 @@ const (
 	nextHole position = 0
 )
 
-type hole entry
-
-func newHole(e entry) hole {
-	return hole(e)
+type hole struct {
+	position position
+	entry    entry
 }
 
-func (h hole) moveNext(s storage, u updater, p position) position {
+func newHole(position position, entry entry) hole {
+	return hole{position: position, entry: entry}
+}
+
+func (h hole) produce() {
+
+}
+
+func (h hole) consume(s entries, u updater, p position) position {
 	u.update(s, p)
-	return h[nextHole]
+	return h.entry[nextHole]
 }

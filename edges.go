@@ -1,13 +1,17 @@
 package klubok
 
 type edges struct {
-	entries storage
+	entries entries
 }
 
-func newEdges(s storage) edges {
+func newEdges(entries entries) edges {
 	return edges{
-		entries: s,
+		entries: entries,
 	}
+}
+
+func (e edges) read(position position) edge {
+	return newEdge(position, e.entries.read(position))
 }
 
 func (e edges) append(edge edge) position {
