@@ -18,7 +18,7 @@ func newEdge(position position, entry entry) edge {
 	return edge{position: position, entry: entry}
 }
 
-func newEmptyEdge() edge {
+func newVoidEdge() edge {
 	return edge{position: void, entry: entry{void, void, void, void, void, void}}
 }
 

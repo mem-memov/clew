@@ -29,10 +29,14 @@ func (v vertices) create() vertex {
 	return vertex
 }
 
+func (v vertices) produceHole(vertex vertex) {
+	v.holes.produceHole(vertex)
+}
+
 func (v vertices) read(position position) vertex {
 	return newVertexWithEntry(position, v.entries.read(position))
 }
 
-func (v vertices) update(vx vertex) {
-	vx.update(v.entries)
+func (v vertices) update(vertex vertex) {
+	vertex.update(v.entries)
 }

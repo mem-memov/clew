@@ -12,10 +12,27 @@ func newEdges(entries entries, holes holes) edges {
 	}
 }
 
+func (e edges) produceHole(edge edge) {
+	e.holes.produceHole(edge)
+}
+
+func (e edges) create() edge {
+
+	var edge edge
+	if e.holes.exist() {
+		edge = newEdge(e.holes.last())
+		e.holes.consumeHole(edge)
+	} else {
+		edge = newEdge(e.entries.next())
+	}
+
+	return edge
+}
+
 func (e edges) read(position position) edge {
 	return newEdge(position, e.entries.read(position))
 }
 
-func (e edges) append(edge edge) position {
-	return edge.append(e.entries)
+func (e edges) append(edge edge) {
+	edge.append(e.entries)
 }

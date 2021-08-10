@@ -65,6 +65,10 @@ func (v vertex) setNextNegativeEdgeIfEmpty(edgePosition position) {
 	}
 }
 
-func (v vertex) update(s entries) {
-	s.update(v.position, v.entry)
+func (v vertex) update(entries entries) {
+	entries.update(v.position, v.entry)
+}
+
+func (v vertex) append(entries entries) {
+	entries.append(v.entry)
 }

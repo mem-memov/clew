@@ -18,28 +18,30 @@ func NewGraph() *Graph {
 	}
 }
 
-func (g *Graph) NewVertices(done <-chan struct{}) (chan<- struct{}, <-chan uint) {
-	tails := make(chan uint)
-	requests := make(chan struct{})
+func (g *Graph) CreateVertices(done <-chan struct{}) (chan<- struct{}, <-chan uint) {
+	tailStream := make(chan uint)
+	requestStream := make(chan struct{})
 
 	go func() {
-		defer close(tails)
-		defer close(requests)
+		defer close(tailStream)
+		defer close(requestStream)
 
 		for {
 			select {
 			case <-done:
 				return
-			case <-requests:
-				tails <- uint(g.vertices.create().getPosition())
+			case <-requestStream:
+				vertex := g.vertices.create()
+				g.vertices.update(vertex)
+				tailStream <- uint(vertex.getPosition())
 			}
 		}
 	}()
 
-	return requests, tails
+	return requestStream, tailStream
 }
 
-func (g *Graph) ReadPositive(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+func (g *Graph) ReadPositiveAdjacentVertices(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
 	tailStream := make(chan uint)
 	headStreams := make(chan (<-chan uint))
 
@@ -76,10 +78,11 @@ func (g *Graph) ReadPositive(done <-chan struct{}) (chan<- uint, <-chan (<-chan 
 						case <-done:
 							return
 						default:
-							if nextEdge.hasNextPositiveEdge() {
-								nextEdge = nextEdge.getNextPositiveEdge(g.edges)
-								nextEdge.sendPositiveVertex(headStream)
+							if !nextEdge.hasNextPositiveEdge() {
+								return
 							}
+							nextEdge = nextEdge.getNextPositiveEdge(g.edges)
+							nextEdge.sendPositiveVertex(headStream)
 						}
 					}
 				}()
@@ -96,7 +99,7 @@ func (g *Graph) ReadPositive(done <-chan struct{}) (chan<- uint, <-chan (<-chan 
 	return tailStream, headStreams
 }
 
-func (g *Graph) ReadNegative(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+func (g *Graph) ReadNegativeAdjacentVertices(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
 	headStream := make(chan uint)
 	tailStreams := make(chan (<-chan uint))
 
@@ -133,10 +136,11 @@ func (g *Graph) ReadNegative(done <-chan struct{}) (chan<- uint, <-chan (<-chan 
 						case <-done:
 							return
 						default:
-							if nextEdge.hasNextNegativeEdge() {
-								nextEdge = nextEdge.getNextNegativeEdge(g.edges)
-								nextEdge.sendNegativeVertex(tailStream)
+							if !nextEdge.hasNextNegativeEdge() {
+								return
 							}
+							nextEdge = nextEdge.getNextNegativeEdge(g.edges)
+							nextEdge.sendNegativeVertex(tailStream)
 						}
 					}
 				}()
@@ -168,7 +172,7 @@ func (g *Graph) NewEdges(done <-chan struct{}) chan<- [2]uint {
 				headVertex := g.vertices.read(position(messsage[1]))
 
 				edgePosition := g.nextEntry
-				newEdge := newEmptyEdge()
+				newEdge := newVoidEdge()
 				newEdge.setPositiveVertex(tailVertex)
 				newEdge.setNegativeVertex(headVertex)
 
@@ -252,7 +256,7 @@ func (g *Graph) DeletePositiveEdges(done <-chan struct{}) chan<- [2]uint {
 	return edges
 }
 
-func (g *Graph) DeleteVertices(done <-chan struct{}) chan<- uint {
+func (g *Graph) PositiveVertexDeleteStream(done <-chan struct{}) chan<- uint {
 	tails := make(chan uint)
 
 	go func() {
@@ -264,27 +268,75 @@ func (g *Graph) DeleteVertices(done <-chan struct{}) chan<- uint {
 				return
 			case tail := <-tails:
 				tailVertex := g.vertices.read(position(tail))
-				g.holes.produce(tailVertex)
+				g.vertices.produceHole(tailVertex)
 
 				if tailVertex.hasFirstPositiveEdge() {
 					nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
-					g.holes.produce(nextEdge)
+					g.edges.produceHole(nextEdge)
 
 					for !nextEdge.hasNextPositiveEdge() {
 						nextEdge = nextEdge.getNextPositiveEdge(g.edges)
-						g.holes.produce(nextEdge)
+						g.edges.produceHole(nextEdge)
 					}
 				}
+			}
+		}
+	}()
+
+	return tails
+}
+
+func (g *Graph) NegativeVertexDeleteStream(done <-chan struct{}) chan<- uint {
+	tails := make(chan uint)
+
+	go func() {
+		defer close(tails)
+
+		for {
+			select {
+			case <-done:
+				return
+			case tail := <-tails:
+				tailVertex := g.vertices.read(position(tail))
+				g.vertices.produceHole(tailVertex)
 
 				if tailVertex.hasFirstNegativeEdge() {
 					nextEdge := tailVertex.getFirstNegativeEdge(g.edges)
-					g.holes.produce(nextEdge)
+					g.edges.produceHole(nextEdge)
 
 					for !nextEdge.hasNextNegativeEdge() {
 						nextEdge = nextEdge.getNextNegativeEdge(g.edges)
-						g.holes.produce(nextEdge)
+						g.edges.produceHole(nextEdge)
 					}
 				}
+			}
+		}
+	}()
+
+	return tails
+}
+
+func (g *Graph) TotalVertexDeleteStream(done <-chan struct{}) chan<- uint {
+	tails := make(chan uint)
+	positive := g.PositiveVertexDeleteStream(done)
+	negative := g.NegativeVertexDeleteStream(done)
+
+	go func() {
+		defer close(tails)
+		defer close(positive)
+		defer close(negative)
+
+		for {
+			select {
+			case <-done:
+				return
+			case tail := <-tails:
+				go func() {
+					positive <- tail
+				}()
+				go func() {
+					negative <- tail
+				}()
 			}
 		}
 	}()
