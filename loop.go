@@ -1,7 +1,7 @@
 package klubok
 
 type loop struct {
-	vertex vertex
+	vertex   vertex
 	vertices vertices
 	edges    edges
 }

@@ -10,5 +10,5 @@ func newBiloop(positive loop, negative loop) biloop {
 }
 
 func (b biloop) getPosition() position {
-	return b.positive.
+	return b.positive.getPosition()
 }

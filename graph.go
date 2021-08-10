@@ -33,7 +33,7 @@ func (g *Graph) CreateVertices(done <-chan struct{}) (chan<- struct{}, <-chan ui
 			case <-done:
 				return
 			case <-requestStream:
-				tailStream <- g.biloops.createBiloop().getPosition().toInteger()
+				tailStream <- g.biloops.create().getPosition().toInteger()
 			}
 		}
 	}()
@@ -41,7 +41,7 @@ func (g *Graph) CreateVertices(done <-chan struct{}) (chan<- struct{}, <-chan ui
 	return requestStream, tailStream
 }
 
-func (g *Graph) ReadPositiveAdjacentVertices(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+func (g *Graph) ReadPositiveAdjacentVerticesForward(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
 	tailStream := make(chan uint)
 	headStreams := make(chan (<-chan uint))
 
@@ -58,6 +58,9 @@ func (g *Graph) ReadPositiveAdjacentVertices(done <-chan struct{}) (chan<- uint,
 
 				go func() {
 					defer close(headStream)
+
+					tailBiloop := g.biloops
+					tailBiloop.sendNextPositiveVertex()
 
 					tailVertex := g.vertices.read(position(tail))
 

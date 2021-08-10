@@ -3,9 +3,9 @@ package klubok
 const (
 	identifier     position = 0
 	previousVertex position = 1
-	firstPositive  position = 2
+	positiveCount  position = 2
 	lastPositive   position = 3
-	firstNegative  position = 4
+	negativeCount  position = 4
 	lastNegative   position = 5
 )
 

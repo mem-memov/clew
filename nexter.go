@@ -1,5 +1,5 @@
 package klubok
 
-type nexter interface{
+type nexter interface {
 	next() position
 }
