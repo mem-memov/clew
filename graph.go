@@ -39,16 +39,20 @@ func (g *Graph) Create() uint {
 	}
 }
 
-func (g *Graph) ReadPositive(tail uint) []uint {
-	heads := make([]uint, 0)
+func (g *Graph) ReadPositive(tail uint, done <-chan bool) <-chan uint {
+	heads := make(<-chan uint)
 
-	tailVertex := g.entries[tail]
+	go func() {
 
-	if tailVertex[firstPositive] == void {
+	}()
+
+	tailVertex := g.vertices.read(position(tail))
+
+	if !tailVertex.hasFirstPositiveEdge() {
 		return heads
 	}
 
-	nextEdge := g.entries[tailVertex[firstPositive]]
+	nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
 	heads = append(heads, nextEdge[positiveDirection])
 
 	for {

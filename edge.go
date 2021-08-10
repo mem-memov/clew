@@ -26,6 +26,14 @@ func (e edge) setPositiveVertex(v vertex) {
 	e.entry[positiveDirection] = v.getPosition()
 }
 
+func (e edge) getPositiveVertex(vertices vertices) vertex {
+	return vertices.read(e.entry[positiveDirection])
+}
+
+func (e edge) sendPositiveVertex(c chan<- uint) {
+	c <- uint(e.entry[positiveDirection])
+}
+
 func (e edge) setNegativeVertex(v vertex) {
 	e.entry[negativeDirection] = v.getPosition()
 }
