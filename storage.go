@@ -1,18 +1,25 @@
 package klubok
 
 type sliceStorage struct {
-	entries []entry
+	entries [][6]uint
 }
 
-func (s *sliceStorage) read(p position) entry {
-	return s.entries[p]
+func newStorage() *sliceStorage {
+	return &sliceStorage{entries: [][6]uint{}}
 }
 
-func (s *sliceStorage) update(p position, e entry) {
-	s.entries[p] = e
+func (s *sliceStorage) next() uint {
+	return uint(len(s.entries))
 }
 
-func (s *sliceStorage) append(e entry) position {
-	s.entries = append(s.entries, e)
-	return position(len(s.entries))
+func (s *sliceStorage) read(position uint) [6]uint {
+	return s.entries[int(position)]
+}
+
+func (s *sliceStorage) update(position uint, entry [6]uint) {
+	s.entries[int(position)] = entry
+}
+
+func (s *sliceStorage) append(entry [6]uint) {
+	s.entries = append(s.entries, entry)
 }

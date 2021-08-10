@@ -2,11 +2,13 @@ package klubok
 
 type edges struct {
 	entries entries
+	holes   holes
 }
 
-func newEdges(entries entries) edges {
+func newEdges(entries entries, holes holes) edges {
 	return edges{
 		entries: entries,
+		holes:   holes,
 	}
 }
 

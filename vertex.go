@@ -15,7 +15,7 @@ type vertex struct {
 }
 
 func newVertex(position position, previousVertexPosition position) vertex {
-	entry := newEntry()
+	entry := newEmptyEntry()
 	entry[identifier] = position
 	entry[previousVertex] = previousVertexPosition
 	return vertex{position: position, entry: entry}
@@ -66,5 +66,5 @@ func (v vertex) setNextNegativeEdgeIfEmpty(edgePosition position) {
 }
 
 func (v vertex) update(s entries) {
-	s.update(v.entry[identifier], v.entry)
+	s.update(v.position, v.entry)
 }

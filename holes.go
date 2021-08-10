@@ -20,11 +20,11 @@ func (h holes) last() position {
 	return h.lastHole
 }
 
-func (h holes) produce(u updater) {
+func (h holes) produceHole(u updater) {
 	lastHole := newHole(h.entries.read(h.lastHole))
 }
 
-func (h holes) consume(u updater) {
+func (h holes) consumeHole(u updater) {
 	lastHole := newHole(h.entries.read(h.lastHole))
 	h.lastHole = lastHole.consume(h.entries, u, h.lastHole)
 }

@@ -1,164 +1,293 @@
 package klubok
 
-const (
-	entrySize          = 6
-	void      position = 0
-)
-
-type position uint
-
 type Graph struct {
-	nextEntry position
-	vertices  vertices
-	edges     edges
-	holes     holes
+	vertices vertices
+	edges    edges
 }
 
 func NewGraph() *Graph {
-	// void entry to make 0 a special value, it may contain graph metadata
-	voidEntry := newEntry()
-	entries := &sliceStorage{entries: []entry{voidEntry}}
+	persister := newStorage()
+	entries := newEntries(persister)
+	// voidEntry makes 0 to a special value, that means no position has been set, it may contain graph metadata
+	voidEntry := newEmptyEntry()
+	entries.append(voidEntry)
+	holes := newHoles(entries, void)
 	return &Graph{
-		nextEntry: 1,
-		vertices:  newVertices(entries, void),
-		edges:     newEdges(entries),
-		holes:     newHoles(entries, void),
+		vertices:  newVertices(entries, holes, void),
+		edges:     newEdges(entries, holes),
 	}
 }
 
-func (g *Graph) Create() uint {
-
-	if g.holes.exist() {
-		tailVertex := g.vertices.create(g.holes.last())
-		g.holes.consume(tailVertex)
-		return uint(tailVertex.getPosition())
-	} else {
-		tailVertex := g.vertices.create(g.nextEntry)
-		g.nextEntry++
-		return uint(tailVertex.getPosition())
-	}
-}
-
-func (g *Graph) ReadPositive(tail uint, done <-chan bool) <-chan uint {
-	heads := make(chan uint)
-	defer close(heads)
-
-	tailVertex := g.vertices.read(position(tail))
-
-	if !tailVertex.hasFirstPositiveEdge() {
-		return heads
-	}
-
-	nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
-	select {
-	case <-done:
-	case heads <- nextEdge[positiveDirection]:
-	}
+func (g *Graph) NewVertices(done <-chan struct{}) (chan<- struct{}, <-chan uint) {
+	tails := make(chan uint)
+	requests := make(chan struct{})
 
 	go func() {
+		defer close(tails)
+		defer close(requests)
+
 		for {
 			select {
 			case <-done:
-			default:
-				if nextEdge[positiveNext] == void {
-					break
-				}
-				nextEdge = g.entries[nextEdge[positiveNext]]
-				heads = append(heads, nextEdge[positiveDirection])
+				return
+			case <-requests:
+				tails <- uint(g.vertices.create().getPosition())
 			}
 		}
 	}()
 
-	return heads
+	return requests, tails
 }
 
-func (g *Graph) ReadNegative(tail uint) []uint {
-	heads := make([]uint, 0)
+func (g *Graph) ReadPositive(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+	tailStream := make(chan uint)
+	headStreams := make(chan (<-chan uint))
 
-	tailVertex := g.entries[tail]
+	go func() {
+		defer close(tailStream)
+		defer close(headStreams)
 
-	if tailVertex[firstNegative] == void {
-		return heads
-	}
+		for {
+			select {
+			case <-done:
+				return
+			case tail := <-tailStream:
+				headStream := make(chan uint)
 
-	nextEdge := g.entries[tailVertex[firstNegative]]
-	heads = append(heads, nextEdge[negativeDirection])
+				go func() {
+					defer close(headStream)
 
-	for {
-		if nextEdge[negativeNext] == void {
-			break
+					tailVertex := g.vertices.read(position(tail))
+
+					if !tailVertex.hasFirstPositiveEdge() {
+						return
+					}
+
+					nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
+					select {
+					case <-done:
+						return
+					default:
+						nextEdge.sendPositiveVertex(headStream)
+					}
+
+					for {
+						select {
+						case <-done:
+							return
+						default:
+							if nextEdge.hasNextPositiveEdge() {
+								nextEdge = nextEdge.getNextPositiveEdge(g.edges)
+								nextEdge.sendPositiveVertex(headStream)
+							}
+						}
+					}
+				}()
+
+				select {
+				case <-done:
+					return
+				case headStreams <- headStream:
+				}
+			}
 		}
-		nextEdge = g.entries[nextEdge[negativeNext]]
-		heads = append(heads, nextEdge[negativeDirection])
-	}
+	}()
 
-	return heads
+	return tailStream, headStreams
 }
 
-func (g *Graph) Update(tail uint, head uint) {
+func (g *Graph) ReadNegative(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+	headStream := make(chan uint)
+	tailStreams := make(chan (<-chan uint))
 
-	tailVertex := g.vertices.read(position(tail))
-	headVertex := g.vertices.read(position(head))
+	go func() {
+		defer close(headStream)
+		defer close(tailStreams)
 
-	edgePosition := g.nextEntry
-	newEdge := newEmptyEdge()
-	newEdge.setPositiveVertex(tailVertex)
-	newEdge.setNegativeVertex(headVertex)
+		for {
+			select {
+			case <-done:
+				return
+			case head := <-headStream:
+				tailStream := make(chan uint)
 
-	tailVertex.setNextPositiveEdgeIfEmpty(edgePosition)
+				go func() {
+					defer close(tailStream)
 
-	if tailVertex[positivePrevious] != void {
-		newEdge[positivePrevious] = tailVertex[positivePrevious]
-		positivePreviousEdge := g.entries[tailVertex[positivePrevious]]
-		positivePreviousEdge[positiveNext] = edgePosition
-		g.entries[tailVertex[positivePrevious]] = positivePreviousEdge
-		tailVertex[lastPositive] = edgePosition
-	}
+					headVertex := g.vertices.read(position(head))
 
-	headVertex.setNextNegativeEdgeIfEmpty(edgePosition)
+					if !headVertex.hasFirstNegativeEdge() {
+						return
+					}
 
-	if headVertex[negativePrevious] != void {
-		newEdge[negativePrevious] = headVertex[negativePrevious]
-		negativePreviousEdge := g.entries[headVertex[negativePrevious]]
-		negativePreviousEdge[negativeNext] = edgePosition
-		g.entries[headVertex[negativePrevious]] = negativePreviousEdge
-		headVertex[negativePrevious] = edgePosition
-	}
+					nextEdge := headVertex.getFirstNegativeEdge(g.edges)
+					select {
+					case <-done:
+						return
+					default:
+						nextEdge.sendNegativeVertex(tailStream)
+					}
 
-	tailVertex.setPreviousPositiveEdge(edgePosition)
-	headVertex.setPreviousNegativeEdge(edgePosition)
+					for {
+						select {
+						case <-done:
+							return
+						default:
+							if nextEdge.hasNextNegativeEdge() {
+								nextEdge = nextEdge.getNextNegativeEdge(g.edges)
+								nextEdge.sendNegativeVertex(tailStream)
+							}
+						}
+					}
+				}()
 
-	g.vertices.update(tailVertex)
-	g.vertices.update(headVertex)
+				select {
+				case <-done:
+					return
+				case tailStreams <- tailStream:
+				}
+			}
+		}
+	}()
 
-	if g.holes.exist() {
-		g.holes.consume(newEdge)
-	} else {
-		g.nextEntry = g.edges.append(newEdge)
-	}
+	return headStream, tailStreams
 }
 
-func (g *Graph) Delete(tail uint) {
-	tailVertex := g.vertices.read(position(tail))
-	g.holes.produce(tailVertex)
+func (g *Graph) NewEdges(done <-chan struct{}) chan<- [2]uint {
+	edges := make(chan [2]uint)
 
-	if tailVertex.hasFirstPositiveEdge() {
-		nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
-		g.holes.produce(nextEdge)
+	go func() {
+		defer close(edges)
 
-		for !nextEdge.hasNextPositiveEdge() {
-			nextEdge = nextEdge.getNextPositiveEdge(g.edges)
-			g.holes.produce(nextEdge)
+		for {
+			select {
+			case <-done:
+				return
+			case messsage := <-edges:
+				tailVertex := g.vertices.read(position(messsage[0]))
+				headVertex := g.vertices.read(position(messsage[1]))
+
+				edgePosition := g.nextEntry
+				newEdge := newEmptyEdge()
+				newEdge.setPositiveVertex(tailVertex)
+				newEdge.setNegativeVertex(headVertex)
+
+				tailVertex.setNextPositiveEdgeIfEmpty(edgePosition)
+
+				if tailVertex[positivePrevious] != void {
+					newEdge[positivePrevious] = tailVertex[positivePrevious]
+					positivePreviousEdge := g.entries[tailVertex[positivePrevious]]
+					positivePreviousEdge[positiveNext] = edgePosition
+					g.entries[tailVertex[positivePrevious]] = positivePreviousEdge
+					tailVertex[lastPositive] = edgePosition
+				}
+
+				headVertex.setNextNegativeEdgeIfEmpty(edgePosition)
+
+				if headVertex[negativePrevious] != void {
+					newEdge[negativePrevious] = headVertex[negativePrevious]
+					negativePreviousEdge := g.entries[headVertex[negativePrevious]]
+					negativePreviousEdge[negativeNext] = edgePosition
+					g.entries[headVertex[negativePrevious]] = negativePreviousEdge
+					headVertex[negativePrevious] = edgePosition
+				}
+
+				tailVertex.setPreviousPositiveEdge(edgePosition)
+				headVertex.setPreviousNegativeEdge(edgePosition)
+
+				g.vertices.update(tailVertex)
+				g.vertices.update(headVertex)
+
+				if g.holes.exist() {
+					g.holes.consume(newEdge)
+				} else {
+					g.nextEntry = g.edges.append(newEdge)
+				}
+			}
 		}
-	}
+	}()
 
-	if tailVertex.hasFirstNegativeEdge() {
-		nextEdge := tailVertex.getFirstNegativeEdge(g.edges)
-		g.holes.produce(nextEdge)
+	return edges
+}
 
-		for !nextEdge.hasNextNegativeEdge() {
-			nextEdge = nextEdge.getNextNegativeEdge(g.edges)
-			g.holes.produce(nextEdge)
+func (g *Graph) DeletePositiveEdges(done <-chan struct{}) chan<- [2]uint {
+	edges := make(chan [2]uint)
+
+	go func() {
+		defer close(edges)
+
+		for {
+			select {
+			case <-done:
+				return
+			case message := <-edges:
+
+				go func() {
+					tailPosition, headPosition := position(message[0]), position(message[1])
+
+					tailVertex := g.vertices.read(tailPosition)
+
+					if !tailVertex.hasFirstPositiveEdge() {
+						return
+					}
+
+					nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
+					if nextEdge.atPosition(headPosition) {
+						g.holes.produce(nextEdge)
+						// reconnect ring
+					}
+
+					for nextEdge.hasNextPositiveEdge() {
+						nextEdge = nextEdge.getNextPositiveEdge(g.edges)
+						if nextEdge.atPosition(headPosition) {
+							g.holes.produce(nextEdge)
+							// reconnect ring
+						}
+					}
+				}()
+			}
 		}
-	}
+	}()
+
+	return edges
+}
+
+func (g *Graph) DeleteVertices(done <-chan struct{}) chan<- uint {
+	tails := make(chan uint)
+
+	go func() {
+		defer close(tails)
+
+		for {
+			select {
+			case <-done:
+				return
+			case tail := <-tails:
+				tailVertex := g.vertices.read(position(tail))
+				g.holes.produce(tailVertex)
+
+				if tailVertex.hasFirstPositiveEdge() {
+					nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
+					g.holes.produce(nextEdge)
+
+					for !nextEdge.hasNextPositiveEdge() {
+						nextEdge = nextEdge.getNextPositiveEdge(g.edges)
+						g.holes.produce(nextEdge)
+					}
+				}
+
+				if tailVertex.hasFirstNegativeEdge() {
+					nextEdge := tailVertex.getFirstNegativeEdge(g.edges)
+					g.holes.produce(nextEdge)
+
+					for !nextEdge.hasNextNegativeEdge() {
+						nextEdge = nextEdge.getNextNegativeEdge(g.edges)
+						g.holes.produce(nextEdge)
+					}
+				}
+			}
+		}
+	}()
+
+	return tails
 }
