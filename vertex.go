@@ -15,7 +15,7 @@ type vertex struct {
 }
 
 func newVertex(position position, previousVertexPosition position) vertex {
-	entry := newEmptyEntry()
+	entry := newVoidEntry()
 	entry[identifier] = position
 	entry[previousVertex] = previousVertexPosition
 	return vertex{position: position, entry: entry}

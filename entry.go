@@ -2,7 +2,8 @@ package klubok
 
 type entry [6]position
 
-func newEmptyEntry() entry {
+// newVoidEntry creates a voidEntry which makes 0 to a special value, that means no position has been set, it may contain graph metadata
+func newVoidEntry() entry {
 	return entry{void, void, void, void, void, void}
 }
 

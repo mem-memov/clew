@@ -1,20 +1,22 @@
 package klubok
 
 type Graph struct {
-	vertices vertices
-	edges    edges
+	biloops biloops
 }
 
-func NewGraph() *Graph {
-	persister := newStorage()
+func NewGraph(persister persister) *Graph {
 	entries := newEntries(persister)
-	// voidEntry makes 0 to a special value, that means no position has been set, it may contain graph metadata
-	voidEntry := newEmptyEntry()
-	entries.append(voidEntry)
+	entries.append(newVoidEntry())
 	holes := newHoles(entries, void)
+
 	return &Graph{
-		vertices:  newVertices(entries, holes, void),
-		edges:     newEdges(entries, holes),
+		biloops: newBiloops(
+			newPositions(entries),
+			newLoops(
+				newVertices(entries, holes, void),
+				newEdges(entries, holes),
+			),
+		),
 	}
 }
 
@@ -31,9 +33,7 @@ func (g *Graph) CreateVertices(done <-chan struct{}) (chan<- struct{}, <-chan ui
 			case <-done:
 				return
 			case <-requestStream:
-				vertex := g.vertices.create()
-				g.vertices.update(vertex)
-				tailStream <- uint(vertex.getPosition())
+				tailStream <- g.biloops.createBiloop().getPosition().toInteger()
 			}
 		}
 	}()
