@@ -40,11 +40,8 @@ func (g *Graph) Create() uint {
 }
 
 func (g *Graph) ReadPositive(tail uint, done <-chan bool) <-chan uint {
-	heads := make(<-chan uint)
-
-	go func() {
-
-	}()
+	heads := make(chan uint)
+	defer close(heads)
 
 	tailVertex := g.vertices.read(position(tail))
 
@@ -53,15 +50,24 @@ func (g *Graph) ReadPositive(tail uint, done <-chan bool) <-chan uint {
 	}
 
 	nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
-	heads = append(heads, nextEdge[positiveDirection])
-
-	for {
-		if nextEdge[positiveNext] == void {
-			break
-		}
-		nextEdge = g.entries[nextEdge[positiveNext]]
-		heads = append(heads, nextEdge[positiveDirection])
+	select {
+	case <-done:
+	case heads <- nextEdge[positiveDirection]:
 	}
+
+	go func() {
+		for {
+			select {
+			case <-done:
+			default:
+				if nextEdge[positiveNext] == void {
+					break
+				}
+				nextEdge = g.entries[nextEdge[positiveNext]]
+				heads = append(heads, nextEdge[positiveDirection])
+			}
+		}
+	}()
 
 	return heads
 }
