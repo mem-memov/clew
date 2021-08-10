@@ -31,32 +31,11 @@ func (g *Graph) Create() uint {
 	if g.holes.exist() {
 		tailVertex := g.vertices.create(g.holes.last())
 		g.holes.consume(tailVertex)
-		hole := g.entries[g.lastHole][nextHole]
-		tail := g.lastHole
-		g.lastHole = hole
-		g.entries[tail] = entry{
-			identifier:     tail,
-			previousVertex: g.lastVertex,
-			firstPositive:  void,
-			lastPositive:   void,
-			firstNegative:  void,
-			lastNegative:   void,
-		}
-		return tail
+		return uint(tailVertex.getPosition())
 	} else {
-		tail := g.nextEntry
-		g.entries = append(g.entries, entry{
-			identifier:     tail,
-			previousVertex: g.lastVertex,
-			firstPositive:  void,
-			lastPositive:   void,
-			firstNegative:  void,
-			lastNegative:   void,
-		})
+		tailVertex := g.vertices.create(g.nextEntry)
 		g.nextEntry++
-
-		g.lastVertex = tail
-		return tail
+		return uint(tailVertex.getPosition())
 	}
 }
 
