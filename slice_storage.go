@@ -4,7 +4,7 @@ type sliceStorage struct {
 	entries [][6]uint
 }
 
-func newStorage() *sliceStorage {
+func NewSliceStorage() *sliceStorage {
 	return &sliceStorage{entries: [][6]uint{}}
 }
 

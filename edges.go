@@ -30,9 +30,13 @@ func (e edges) create() edge {
 }
 
 func (e edges) read(position position) edge {
-	return newEdge(position, e.entries.read(position))
+	return existingEdge(position, e.entries.read(position))
 }
 
 func (e edges) append(edge edge) {
 	edge.append(e.entries)
+}
+
+func (e edges) update(edge edge) {
+	edge.update(e.entries)
 }

@@ -18,6 +18,11 @@ func newVertex(position position, previousVertexPosition position) vertex {
 	entry := newVoidEntry()
 	entry[identifier] = position
 	entry[previousVertex] = previousVertexPosition
+	entry[positiveCount] = 0
+	entry[firstPositive] = void
+	entry[negativeCount] = 0
+	entry[firstNegative] = void
+
 	return vertex{position: position, entry: entry}
 }
 
@@ -43,6 +48,16 @@ func (v vertex) getFirstPositiveEdge(edges edges) edge {
 
 func (v vertex) getFirstNegativeEdge(edges edges) edge {
 	return edges.read(v.entry[firstNegative])
+}
+
+func (v vertex) setFirstPositiveEdge(edge edge) {
+	v.entry[firstPositive] = edge.getPosition()
+	v.entry[positiveCount]++
+}
+
+func (v vertex) setFirstNegativeEdge(edge edge) {
+	v.entry[firstNegative] = edge.getPosition()
+	v.entry[negativeCount]++
 }
 
 func (v vertex) update(entries entries) {

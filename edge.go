@@ -1,5 +1,5 @@
 package klubok
-// first edge is connected to itself
+
 const (
 	positiveDirection position = 0
 	positivePrevious  position = 1
@@ -14,20 +14,29 @@ type edge struct {
 	entry    entry
 }
 
-func newEdge(position position, entry entry) edge {
+func newEdge(position position) edge {
+	// the first edge of a vertex is connected to itself
+	entry := newVoidEntry()
+	entry[positiveDirection] = void
+	entry[positivePrevious] = position
+	entry[positiveNext] = position
+	entry[negativeDirection] = void
+	entry[negativePrevious] = position
+	entry[negativeNext] = position
+
 	return edge{position: position, entry: entry}
 }
 
-func newVoidEdge() edge {
-	return edge{position: void, entry: entry{void, void, void, void, void, void}}
-}
-
-func (e edge) atPosition(position position) bool {
-	return e.position == position
+func existingEdge(position position, entry entry) edge {
+	return edge{position: position, entry: entry}
 }
 
 func (e edge) getPosition() position {
 	return e.position
+}
+
+func (e edge) hasPositiveVertex(v vertex) bool {
+	return e.entry[positiveDirection] == v.getPosition()
 }
 
 func (e edge) setPositiveVertex(v vertex) {
@@ -42,14 +51,6 @@ func (e edge) getPositiveVertex(vertices vertices) vertex {
 	return vertices.read(e.entry[positiveDirection])
 }
 
-func (e edge) sendPositiveVertex(headStream chan<- uint) {
-	headStream <- uint(e.entry[positiveDirection])
-}
-
-func (e edge) sendNegativeVertex(tailStream chan<- uint) {
-	tailStream <- uint(e.entry[negativeDirection])
-}
-
 func (e edge) getNextPositiveEdge(edges edges) edge {
 	return edges.read(e.entry[positiveNext])
 }
@@ -58,20 +59,36 @@ func (e edge) getNextNegativeEdge(edges edges) edge {
 	return edges.read(e.entry[negativeNext])
 }
 
-func (e edge) hasDifferentPreviousPositiveEdge() bool {
-	return e.entry[positivePrevious] != e.position
-}
-
-func (e edge) hasDifferentPreviousNegativeEdge() bool {
-	return e.entry[negativePrevious] != e.position
-}
-
 func (e edge) getPreviousPositiveEdge(edges edges) edge {
 	return edges.read(e.entry[positivePrevious])
 }
 
 func (e edge) getPreviousNegativeEdge(edges edges) edge {
 	return edges.read(e.entry[negativePrevious])
+}
+
+func (e edge) hasPreviousPositiveEdge() bool {
+	return e.entry[positivePrevious] != void
+}
+
+func (e edge) hasPreviousNegativeEdge() bool {
+	return e.entry[negativePrevious] != void
+}
+
+func (e edge) setPreviousPositiveEdge(edge edge) {
+	e.entry[positivePrevious] = edge.getPosition()
+}
+
+func (e edge) setPreviousNegativeEdge(edge edge) {
+	e.entry[negativePrevious] = edge.getPosition()
+}
+
+func (e edge) setNextPositiveEdge(edge edge) {
+	e.entry[positiveNext] = edge.getPosition()
+}
+
+func (e edge) setNextNegativeEdge(edge edge) {
+	e.entry[negativeNext] = edge.getPosition()
 }
 
 func (e edge) update(entries entries) {
