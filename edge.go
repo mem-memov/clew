@@ -1,5 +1,5 @@
 package klubok
-
+// first edge is connected to itself
 const (
 	positiveDirection position = 0
 	positivePrevious  position = 1
@@ -26,6 +26,10 @@ func (e edge) atPosition(position position) bool {
 	return e.position == position
 }
 
+func (e edge) getPosition() position {
+	return e.position
+}
+
 func (e edge) setPositiveVertex(v vertex) {
 	e.entry[positiveDirection] = v.getPosition()
 }
@@ -38,20 +42,12 @@ func (e edge) getPositiveVertex(vertices vertices) vertex {
 	return vertices.read(e.entry[positiveDirection])
 }
 
-func (e edge) sendPositiveVertex(out chan<- uint) {
-	out <- uint(e.entry[positiveDirection])
+func (e edge) sendPositiveVertex(headStream chan<- uint) {
+	headStream <- uint(e.entry[positiveDirection])
 }
 
-func (e edge) sendNegativeVertex(out chan<- uint) {
-	out <- uint(e.entry[negativeDirection])
-}
-
-func (e edge) hasNextPositiveEdge() bool {
-	return e.entry[positiveNext] != void
-}
-
-func (e edge) hasNextNegativeEdge() bool {
-	return e.entry[negativeNext] != void
+func (e edge) sendNegativeVertex(tailStream chan<- uint) {
+	tailStream <- uint(e.entry[negativeDirection])
 }
 
 func (e edge) getNextPositiveEdge(edges edges) edge {
@@ -60,6 +56,22 @@ func (e edge) getNextPositiveEdge(edges edges) edge {
 
 func (e edge) getNextNegativeEdge(edges edges) edge {
 	return edges.read(e.entry[negativeNext])
+}
+
+func (e edge) hasDifferentPreviousPositiveEdge() bool {
+	return e.entry[positivePrevious] != e.position
+}
+
+func (e edge) hasDifferentPreviousNegativeEdge() bool {
+	return e.entry[negativePrevious] != e.position
+}
+
+func (e edge) getPreviousPositiveEdge(edges edges) edge {
+	return edges.read(e.entry[positivePrevious])
+}
+
+func (e edge) getPreviousNegativeEdge(edges edges) edge {
+	return edges.read(e.entry[negativePrevious])
 }
 
 func (e edge) update(entries entries) {

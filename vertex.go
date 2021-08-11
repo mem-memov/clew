@@ -4,9 +4,9 @@ const (
 	identifier     position = 0
 	previousVertex position = 1
 	positiveCount  position = 2
-	lastPositive   position = 3
+	firstPositive  position = 3
 	negativeCount  position = 4
-	lastNegative   position = 5
+	firstNegative  position = 5
 )
 
 type vertex struct {
@@ -33,36 +33,16 @@ func (v vertex) hasFirstPositiveEdge() bool {
 	return v.entry[firstPositive] != void
 }
 
-func (v vertex) getFirstPositiveEdge(edges edges) edge {
-	return edges.read(v.entry[firstPositive])
-}
-
 func (v vertex) hasFirstNegativeEdge() bool {
 	return v.entry[firstNegative] != void
 }
 
+func (v vertex) getFirstPositiveEdge(edges edges) edge {
+	return edges.read(v.entry[firstPositive])
+}
+
 func (v vertex) getFirstNegativeEdge(edges edges) edge {
 	return edges.read(v.entry[firstNegative])
-}
-
-func (v vertex) setPreviousPositiveEdge(edgePosition position) {
-	v.entry[positivePrevious] = edgePosition
-}
-
-func (v vertex) setNextPositiveEdgeIfEmpty(edgePosition position) {
-	if v.entry[positiveNext] == void {
-		v.entry[positiveNext] = edgePosition
-	}
-}
-
-func (v vertex) setPreviousNegativeEdge(edgePosition position) {
-	v.entry[negativePrevious] = edgePosition
-}
-
-func (v vertex) setNextNegativeEdgeIfEmpty(edgePosition position) {
-	if v.entry[negativeNext] == void {
-		v.entry[negativeNext] = edgePosition
-	}
 }
 
 func (v vertex) update(entries entries) {

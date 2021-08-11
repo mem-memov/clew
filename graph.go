@@ -8,19 +8,22 @@ func NewGraph(persister persister) *Graph {
 	entries := newEntries(persister)
 	entries.append(newVoidEntry())
 	holes := newHoles(entries, void)
+	vertices := newVertices(entries, holes, void)
+	edges := newEdges(entries, holes)
+	positiveLoop := newPositiveLoop(vertices, edges)
+	negativeLoop := newNegativeLoop(vertices, edges)
 
 	return &Graph{
 		biloops: newBiloops(
-			newPositions(entries),
-			newLoops(
-				newVertices(entries, holes, void),
-				newEdges(entries, holes),
-			),
+			vertices,
+			edges,
+			positiveLoop,
+			negativeLoop,
 		),
 	}
 }
 
-func (g *Graph) CreateVertices(done <-chan struct{}) (chan<- struct{}, <-chan uint) {
+func (g *Graph) StreamNewVertices(done <-chan struct{}) (chan<- struct{}, <-chan uint) {
 	tailStream := make(chan uint)
 	requestStream := make(chan struct{})
 
@@ -41,7 +44,7 @@ func (g *Graph) CreateVertices(done <-chan struct{}) (chan<- struct{}, <-chan ui
 	return requestStream, tailStream
 }
 
-func (g *Graph) ReadPositiveAdjacentVerticesForward(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+func (g *Graph) StreamPositiveAdjacentVerticesForward(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
 	tailStream := make(chan uint)
 	headStreams := make(chan (<-chan uint))
 
@@ -54,41 +57,9 @@ func (g *Graph) ReadPositiveAdjacentVerticesForward(done <-chan struct{}) (chan<
 			case <-done:
 				return
 			case tail := <-tailStream:
-				headStream := make(chan uint)
 
-				go func() {
-					defer close(headStream)
-
-					tailBiloop := g.biloops
-					tailBiloop.sendNextPositiveVertex()
-
-					tailVertex := g.vertices.read(position(tail))
-
-					if !tailVertex.hasFirstPositiveEdge() {
-						return
-					}
-
-					nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
-					select {
-					case <-done:
-						return
-					default:
-						nextEdge.sendPositiveVertex(headStream)
-					}
-
-					for {
-						select {
-						case <-done:
-							return
-						default:
-							if !nextEdge.hasNextPositiveEdge() {
-								return
-							}
-							nextEdge = nextEdge.getNextPositiveEdge(g.edges)
-							nextEdge.sendPositiveVertex(headStream)
-						}
-					}
-				}()
+				tailBiloop := g.biloops.read(position(tail))
+				headStream := tailBiloop.streamNextPositiveVertex(done)
 
 				select {
 				case <-done:
@@ -102,7 +73,7 @@ func (g *Graph) ReadPositiveAdjacentVerticesForward(done <-chan struct{}) (chan<
 	return tailStream, headStreams
 }
 
-func (g *Graph) ReadNegativeAdjacentVertices(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+func (g *Graph) StreamNegativeAdjacentVerticesForward(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
 	headStream := make(chan uint)
 	tailStreams := make(chan (<-chan uint))
 
@@ -115,38 +86,66 @@ func (g *Graph) ReadNegativeAdjacentVertices(done <-chan struct{}) (chan<- uint,
 			case <-done:
 				return
 			case head := <-headStream:
-				tailStream := make(chan uint)
+				headBiloop := g.biloops.read(position(head))
+				tailStream := headBiloop.streamNextNegativeVertex(done)
 
-				go func() {
-					defer close(tailStream)
+				select {
+				case <-done:
+					return
+				case tailStreams <- tailStream:
+				}
+			}
+		}
+	}()
 
-					headVertex := g.vertices.read(position(head))
+	return headStream, tailStreams
+}
 
-					if !headVertex.hasFirstNegativeEdge() {
-						return
-					}
 
-					nextEdge := headVertex.getFirstNegativeEdge(g.edges)
-					select {
-					case <-done:
-						return
-					default:
-						nextEdge.sendNegativeVertex(tailStream)
-					}
+func (g *Graph) StreamPositiveAdjacentVerticesBackward(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+	tailStream := make(chan uint)
+	headStreams := make(chan (<-chan uint))
 
-					for {
-						select {
-						case <-done:
-							return
-						default:
-							if !nextEdge.hasNextNegativeEdge() {
-								return
-							}
-							nextEdge = nextEdge.getNextNegativeEdge(g.edges)
-							nextEdge.sendNegativeVertex(tailStream)
-						}
-					}
-				}()
+	go func() {
+		defer close(tailStream)
+		defer close(headStreams)
+
+		for {
+			select {
+			case <-done:
+				return
+			case tail := <-tailStream:
+
+				tailBiloop := g.biloops.read(position(tail))
+				headStream := tailBiloop.streamPreviousPositiveVertex(done)
+
+				select {
+				case <-done:
+					return
+				case headStreams <- headStream:
+				}
+			}
+		}
+	}()
+
+	return tailStream, headStreams
+}
+
+func (g *Graph) StreamNegativeAdjacentVerticesBackward(done <-chan struct{}) (chan<- uint, <-chan (<-chan uint)) {
+	headStream := make(chan uint)
+	tailStreams := make(chan (<-chan uint))
+
+	go func() {
+		defer close(headStream)
+		defer close(tailStreams)
+
+		for {
+			select {
+			case <-done:
+				return
+			case head := <-headStream:
+				headBiloop := g.biloops.read(position(head))
+				tailStream := headBiloop.streamPreviousNegativeVertex(done)
 
 				select {
 				case <-done:
