@@ -37,8 +37,8 @@ func (b biloop) addHead(position position) {
 	edge.setPositiveVertex(head)
 	edge.setNegativeVertex(b.vertex)
 
-	b.positiveLoop.addHead(b.vertex, head, edge)
-	b.negativeLoop.addTail(head, b.vertex, edge)
+	b.positiveLoop.addHead(b.vertex, edge)
+	b.negativeLoop.addTail(head, edge)
 
 	b.edges.update(edge)
 }
