@@ -60,6 +60,10 @@ func (v vertex) setFirstNegativeEdge(edge edge) {
 	v.entry[negativeCount]++
 }
 
+func (v vertex) deleteFirstPositiveEdge() {
+	v.entry[firstNegative] = void
+}
+
 func (v vertex) update(entries entries) {
 	entries.update(v.position, v.entry)
 }

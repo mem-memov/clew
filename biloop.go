@@ -30,13 +30,51 @@ func (b biloop) addHead(position position) {
 			return
 		}
 	}
+
 	head := b.vertices.read(position)
-	b.positiveLoop.addHead(b.vertex, head)
+
+	edge := b.edges.create()
+	edge.setPositiveVertex(head)
+	edge.setNegativeVertex(b.vertex)
+
+	b.positiveLoop.addHead(b.vertex, head, edge)
+	b.negativeLoop.addTail(head, b.vertex, edge)
+
+	b.edges.update(edge)
 }
 
 func (b biloop) removeHead(position position) {
+
+	if !b.vertex.hasFirstPositiveEdge() {
+		return
+	}
+
 	head := b.vertices.read(position)
-	b.positiveLoop.removeHead(b.vertex, head)
+
+	if !head.hasFirstNegativeEdge() {
+		return
+	}
+
+	firstEdge := b.vertex.getFirstPositiveEdge(b.edges)
+	nextEdge := firstEdge
+
+	if nextEdge.hasPositiveVertex(head) {
+		b.positiveLoop.removeHead(b.vertex, nextEdge)
+		b.negativeLoop.removeTail(head, nextEdge)
+		b.edges.produceHole(nextEdge)
+	}
+
+	for {
+		nextEdge = nextEdge.getNextPositiveEdge(b.edges)
+		if nextEdge.getPosition() == firstEdge.getPosition() {
+			return
+		}
+		if nextEdge.hasPositiveVertex(head) {
+			b.positiveLoop.removeHead(b.vertex, nextEdge)
+			b.negativeLoop.removeTail(head, nextEdge)
+			b.edges.produceHole(nextEdge)
+		}
+	}
 }
 
 func (b biloop) delete() {

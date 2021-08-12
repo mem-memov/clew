@@ -29,3 +29,30 @@ func (n negativeLoop) readTails(head vertex) []position {
 		tails = append(tails, nextEdge.getPosition())
 	}
 }
+
+func (n negativeLoop) addTail(head vertex, edge edge) {
+
+	if !head.hasFirstNegativeEdge() {
+		head.setFirstNegativeEdge(edge)
+		n.vertices.update(head)
+	} else {
+		firstNegativeEdge := head.getFirstNegativeEdge(n.edges)
+		if firstNegativeEdge.hasPreviousNegativeEdge() {
+			lastNegativeEdge := firstNegativeEdge.getPreviousNegativeEdge(n.edges)
+			lastNegativeEdge.setNextNegativeEdge(edge)
+			edge.setPreviousNegativeEdge(lastNegativeEdge)
+			edge.setNextNegativeEdge(firstNegativeEdge)
+			firstNegativeEdge.setPreviousNegativeEdge(edge)
+			n.edges.update(lastNegativeEdge)
+		} else {
+			firstNegativeEdge.setPreviousNegativeEdge(edge)
+			edge.setPreviousNegativeEdge(firstNegativeEdge)
+			edge.setNextNegativeEdge(firstNegativeEdge)
+		}
+		n.edges.update(firstNegativeEdge)
+	}
+}
+
+func (n negativeLoop) removeTail(head vertex, edge edge) {
+
+}

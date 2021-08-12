@@ -30,11 +30,7 @@ func (p positiveLoop) readHeads(tail vertex) []position {
 	}
 }
 
-func (p positiveLoop) addHead(tail vertex, head vertex) {
-
-	edge := p.edges.create()
-	edge.setPositiveVertex(head)
-	edge.setNegativeVertex(tail)
+func (p positiveLoop) addHead(tail vertex, edge edge) {
 
 	if !tail.hasFirstPositiveEdge() {
 		tail.setFirstPositiveEdge(edge)
@@ -55,49 +51,8 @@ func (p positiveLoop) addHead(tail vertex, head vertex) {
 		}
 		p.edges.update(firstPositiveEdge)
 	}
-
-	if !head.hasFirstNegativeEdge() {
-		head.setFirstNegativeEdge(edge)
-		p.vertices.update(tail)
-	} else {
-		firstNegativeEdge := tail.getFirstNegativeEdge(p.edges)
-		if firstNegativeEdge.hasPreviousNegativeEdge() {
-			lastNegativeEdge := firstNegativeEdge.getPreviousNegativeEdge(p.edges)
-			lastNegativeEdge.setNextNegativeEdge(edge)
-			edge.setPreviousNegativeEdge(lastNegativeEdge)
-			edge.setNextNegativeEdge(firstNegativeEdge)
-			firstNegativeEdge.setPreviousNegativeEdge(edge)
-			p.edges.update(lastNegativeEdge)
-		} else {
-			firstNegativeEdge.setPreviousNegativeEdge(edge)
-			edge.setPreviousNegativeEdge(firstNegativeEdge)
-			edge.setNextNegativeEdge(firstNegativeEdge)
-		}
-		p.edges.update(firstNegativeEdge)
-	}
-
-	p.edges.update(edge)
 }
 
-func (p positiveLoop) removeHead(tail vertex, head vertex) {
-	if !tail.hasFirstPositiveEdge() {
-		return
-	}
+func (p positiveLoop) removeHead(tail vertex, edge edge) {
 
-	firstEdge := tail.getFirstPositiveEdge(p.edges)
-	nextEdge := firstEdge
-
-	if nextEdge.hasPositiveVertex(head) {
-		nextEdge.
-	}
-
-	for {
-		nextEdge = nextEdge.getNextPositiveEdge(p.edges)
-		if nextEdge.getPosition() == firstEdge.getPosition() {
-			return
-		}
-		if nextEdge.hasPositiveVertex(head) {
-
-		}
-	}
 }
