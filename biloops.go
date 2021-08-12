@@ -3,11 +3,11 @@ package klubok
 type biloops struct {
 	vertices     vertices
 	edges        edges
-	positiveLoop positiveLoop
-	negativeLoop negativeLoop
+	positiveLoop headLoop
+	negativeLoop tailLoop
 }
 
-func newBiloops(vertices vertices, edges edges, positiveLoop positiveLoop, negativeLoop negativeLoop) biloops {
+func newBiloops(vertices vertices, edges edges, positiveLoop headLoop, negativeLoop tailLoop) biloops {
 	return biloops{vertices: vertices, edges: edges, positiveLoop: positiveLoop, negativeLoop: negativeLoop}
 }
 

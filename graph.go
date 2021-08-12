@@ -63,18 +63,18 @@ func (g *Graph) Delete(tail uint) {
 	//
 	//tailVertex := g.vertices.read(tailPosition)
 	//
-	//if !tailVertex.hasFirstPositiveEdge() {
+	//if !tailVertex.hasFirstEdgeTail() {
 	//	return
 	//}
 	//
-	//nextEdge := tailVertex.getFirstPositiveEdge(g.edges)
+	//nextEdge := tailVertex.getFirstEdgeTail(g.edges)
 	//if nextEdge.atPosition(headPosition) {
 	//	g.holes.produce(nextEdge)
 	//	// reconnect ring
 	//}
 	//
 	//for nextEdge.hasNextPositiveEdge() {
-	//	nextEdge = nextEdge.getNextPositiveEdge(g.edges)
+	//	nextEdge = nextEdge.getNextEdgeHead(g.edges)
 	//	if nextEdge.atPosition(headPosition) {
 	//		g.holes.produce(nextEdge)
 	//		// reconnect ring

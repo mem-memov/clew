@@ -4,11 +4,11 @@ type biloop struct {
 	vertex       vertex
 	vertices     vertices
 	edges        edges
-	positiveLoop positiveLoop
-	negativeLoop negativeLoop
+	positiveLoop headLoop
+	negativeLoop tailLoop
 }
 
-func newBiloop(vertex vertex, vertices vertices, edges edges, positiveLoop positiveLoop, negativeLoop negativeLoop) biloop {
+func newBiloop(vertex vertex, vertices vertices, edges edges, positiveLoop headLoop, negativeLoop tailLoop) biloop {
 	return biloop{vertex: vertex, vertices: vertices, edges: edges, positiveLoop: positiveLoop, negativeLoop: negativeLoop}
 }
 
@@ -25,41 +25,41 @@ func (b biloop) readTails() []position {
 }
 
 func (b biloop) addHead(position position) {
-	for _, present := range b.positiveLoop.readHeads(b.vertex) {
+
+	for _, present := range b.positiveLoop.readHeads(b.vertex.toTail()) {
 		if present == position {
 			return
 		}
 	}
 
-	head := b.vertices.read(position)
-
 	edge := b.edges.create()
-	edge.setPositiveVertex(head)
-	edge.setNegativeVertex(b.vertex)
 
-	b.positiveLoop.addHead(b.vertex, edge)
-	b.negativeLoop.addTail(head, edge)
+	edge.toTail().setTailVertex(b.vertex.toTail())
+	edge.toHead().setHeadVertex(b.vertex.toHead())
 
-	b.edges.update(edge)
+	b.positiveLoop.addHead(b.vertex.toTail(), edge.toTail())
+	b.negativeLoop.addTail(b.vertex.toHead(), edge.toHead())
 }
 
 func (b biloop) removeHead(position position) {
 
-	if !b.vertex.hasFirstPositiveEdge() {
+	tail := b.vertex.toTail()
+
+	if !tail.hasFirstEdgeTail() {
 		return
 	}
 
-	head := b.vertices.read(position)
+	head := b.vertices.read(position).toHead()
 
-	if !head.hasFirstNegativeEdge() {
+	if !head.hasFirstEdgeHead() {
 		return
 	}
 
-	firstEdge := b.vertex.getFirstPositiveEdge(b.edges)
+	firstEdge := tail.getFirstEdgeTail(b.edges)
 	nextEdge := firstEdge
 
-	if nextEdge.hasPositiveVertex(head) {
-		b.positiveLoop.removeHead(b.vertex, nextEdge)
+	if nextEdge.hasPositiveVertex(head.toVertex()) {
+		b.positiveLoop.removeHead(tail, nextEdge)
 		b.negativeLoop.removeTail(head, nextEdge)
 		b.edges.produceHole(nextEdge)
 	}
@@ -69,8 +69,8 @@ func (b biloop) removeHead(position position) {
 		if nextEdge.getPosition() == firstEdge.getPosition() {
 			return
 		}
-		if nextEdge.hasPositiveVertex(head) {
-			b.positiveLoop.removeHead(b.vertex, nextEdge)
+		if nextEdge.hasPositiveVertex(head.toVertex()) {
+			b.positiveLoop.removeHead(tail, nextEdge)
 			b.negativeLoop.removeTail(head, nextEdge)
 			b.edges.produceHole(nextEdge)
 		}

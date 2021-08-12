@@ -35,60 +35,12 @@ func (e edge) getPosition() position {
 	return e.position
 }
 
-func (e edge) hasPositiveVertex(v vertex) bool {
-	return e.entry[positiveDirection] == v.getPosition()
+func (e edge) toTail() edgeTail {
+	return edgeTail(e)
 }
 
-func (e edge) setPositiveVertex(v vertex) {
-	e.entry[positiveDirection] = v.getPosition()
-}
-
-func (e edge) setNegativeVertex(v vertex) {
-	e.entry[negativeDirection] = v.getPosition()
-}
-
-func (e edge) getPositiveVertex(vertices vertices) vertex {
-	return vertices.read(e.entry[positiveDirection])
-}
-
-func (e edge) getNextPositiveEdge(edges edges) edge {
-	return edges.read(e.entry[positiveNext])
-}
-
-func (e edge) getNextNegativeEdge(edges edges) edge {
-	return edges.read(e.entry[negativeNext])
-}
-
-func (e edge) getPreviousPositiveEdge(edges edges) edge {
-	return edges.read(e.entry[positivePrevious])
-}
-
-func (e edge) getPreviousNegativeEdge(edges edges) edge {
-	return edges.read(e.entry[negativePrevious])
-}
-
-func (e edge) hasPreviousPositiveEdge() bool {
-	return e.entry[positivePrevious] != void
-}
-
-func (e edge) hasPreviousNegativeEdge() bool {
-	return e.entry[negativePrevious] != void
-}
-
-func (e edge) setPreviousPositiveEdge(edge edge) {
-	e.entry[positivePrevious] = edge.getPosition()
-}
-
-func (e edge) setPreviousNegativeEdge(edge edge) {
-	e.entry[negativePrevious] = edge.getPosition()
-}
-
-func (e edge) setNextPositiveEdge(edge edge) {
-	e.entry[positiveNext] = edge.getPosition()
-}
-
-func (e edge) setNextNegativeEdge(edge edge) {
-	e.entry[negativeNext] = edge.getPosition()
+func (e edge) toHead() edgeHead {
+	return edgeHead(e)
 }
 
 func (e edge) update(entries entries) {

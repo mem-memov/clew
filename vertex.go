@@ -34,34 +34,12 @@ func (v vertex) getPosition() position {
 	return v.entry[identifier]
 }
 
-func (v vertex) hasFirstPositiveEdge() bool {
-	return v.entry[firstPositive] != void
+func (v vertex) toTail() tailVertex {
+	return tailVertex(v)
 }
 
-func (v vertex) hasFirstNegativeEdge() bool {
-	return v.entry[firstNegative] != void
-}
-
-func (v vertex) getFirstPositiveEdge(edges edges) edge {
-	return edges.read(v.entry[firstPositive])
-}
-
-func (v vertex) getFirstNegativeEdge(edges edges) edge {
-	return edges.read(v.entry[firstNegative])
-}
-
-func (v vertex) setFirstPositiveEdge(edge edge) {
-	v.entry[firstPositive] = edge.getPosition()
-	v.entry[positiveCount]++
-}
-
-func (v vertex) setFirstNegativeEdge(edge edge) {
-	v.entry[firstNegative] = edge.getPosition()
-	v.entry[negativeCount]++
-}
-
-func (v vertex) deleteFirstPositiveEdge() {
-	v.entry[firstNegative] = void
+func (v vertex) toHead() headVertex {
+	return headVertex(v)
 }
 
 func (v vertex) update(entries entries) {
