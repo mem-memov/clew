@@ -1,12 +1,12 @@
 package klubok
 
 const (
-	positiveDirection position = 0
-	positivePrevious  position = 1
-	positiveNext      position = 2
-	negativeDirection position = 3
-	negativePrevious  position = 4
-	negativeNext      position = 5
+	headVertexPosition       position = 0
+	previousEdgeHeadPosition position = 1
+	nextEdgeHeadPosition     position = 2
+	tailVertexPosition       position = 3
+	previousEdgeTailPosition position = 4
+	nextEdgeTailPosition     position = 5
 )
 
 type edge struct {
@@ -14,17 +14,17 @@ type edge struct {
 	entry    entry
 }
 
-func newEdge(position position) edge {
+func newEdge(newEdge position) edge {
 	// the first edge of a vertex is connected to itself
 	entry := newVoidEntry()
-	entry[positiveDirection] = void
-	entry[positivePrevious] = position
-	entry[positiveNext] = position
-	entry[negativeDirection] = void
-	entry[negativePrevious] = position
-	entry[negativeNext] = position
+	entry[headVertexPosition] = void
+	entry[previousEdgeHeadPosition] = newEdge
+	entry[nextEdgeHeadPosition] = newEdge
+	entry[tailVertexPosition] = void
+	entry[previousEdgeTailPosition] = newEdge
+	entry[nextEdgeTailPosition] = newEdge
 
-	return edge{position: position, entry: entry}
+	return edge{position: newEdge, entry: entry}
 }
 
 func existingEdge(position position, entry entry) edge {

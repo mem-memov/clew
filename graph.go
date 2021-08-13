@@ -10,8 +10,8 @@ func NewGraph(persister persister) *Graph {
 	holes := newHoles(entries, void)
 	vertices := newVertices(entries, holes, void)
 	edges := newEdges(entries, holes)
-	positiveLoop := newPositiveLoop(vertices, edges)
-	negativeLoop := newNegativeLoop(vertices, edges)
+	positiveLoop := newHeadLoop(vertices, edges)
+	negativeLoop := newTailLoop(vertices, edges)
 
 	return &Graph{
 		biloops: newBiloops(

@@ -5,61 +5,59 @@ type headLoop struct {
 	edges    edges
 }
 
-func newPositiveLoop(vertices vertices, edges edges) headLoop {
+func newHeadLoop(vertices vertices, edges edges) headLoop {
 	return headLoop{vertices: vertices, edges: edges}
 }
 
-func (p headLoop) readHeads(tail tailVertex) []position {
+func (h headLoop) readHeads(vertex headVertex) []position {
 	heads := make([]position, 0)
 
-	if !tail.hasFirstEdgeTail() {
+	if !vertex.hasFirstEdgeHead() {
 		return heads
 	}
 
-	firstEdge := tail.getFirstEdgeTail(p.edges).toHead()
+	firstEdge := vertex.getFirstEdgeHead(h.edges)
 	nextEdge := firstEdge
 
-	heads = append(heads, nextEdge.toEddge().getPosition())
+	heads = append(heads, nextEdge.toEdge().getPosition())
 
 	for {
-		nextEdge = nextEdge.getNextPositiveEdge(p.edges).toHead()
-		if nextEdge.toEddge().getPosition() == firstEdge.toEddge().getPosition() {
+		nextEdge = nextEdge.getNextEdgeHead(h.edges)
+		if nextEdge.toEdge().getPosition() == firstEdge.toEdge().getPosition() {
 			return heads
 		}
-		heads = append(heads, nextEdge.toEddge().getPosition())
+		heads = append(heads, nextEdge.toEdge().getPosition())
 	}
 }
 
-func (p headLoop) addHead(tail tailVertex, edge edgeTail) {
+func (h headLoop) addHead(vertex headVertex, newEdge edgeHead) {
 
-	if !head.hasFirstEdgeHead() {
-		head.setFirstEdgeHead(edge)
-		n.vertices.update(head.toVertex())
+	if !vertex.hasFirstEdgeHead() {
+		vertex.setFirstEdgeHead(newEdge)
+		h.vertices.update(vertex.toVertex())
 	} else {
-		firstNegativeEdge := head.getFirstEdgeHead(n.edges)
-		if firstNegativeEdge.hasPreviousNegativeEdge() {
-			lastNegativeEdge := firstNegativeEdge.getPreviousNegativeEdge(n.edges)
-			lastNegativeEdge.setNextNegativeEdge(edge)
-			edge.setPreviousNegativeEdge(lastNegativeEdge)
-			edge.setNextNegativeEdge(firstNegativeEdge)
-			firstNegativeEdge.setPreviousNegativeEdge(edge)
-			n.edges.update(lastNegativeEdge)
+		firstEdge := vertex.getFirstEdgeHead(h.edges)
+		if firstEdge.hasPreviousEdgeHead() {
+			lastEdge := firstEdge.getPreviousEdgeHead(h.edges)
+			lastEdge.setNextEdgeHead(newEdge)
+			newEdge.setPreviousEdgeHead(lastEdge)
+			newEdge.setNextEdgeHead(firstEdge)
+			firstEdge.setPreviousEdgeHead(newEdge)
+			h.edges.update(lastEdge.toEdge())
 		} else {
-			firstNegativeEdge.setPreviousNegativeEdge(edge)
-			edge.setPreviousNegativeEdge(firstNegativeEdge)
-			edge.setNextNegativeEdge(firstNegativeEdge)
+			firstEdge.setPreviousEdgeHead(newEdge)
+			newEdge.setPreviousEdgeHead(firstEdge)
+			newEdge.setNextEdgeHead(firstEdge)
 		}
-		n.edges.update(firstNegativeEdge)
+		h.edges.update(firstEdge.toEdge())
 	}
 
-	n.edges.update(edge)
+	h.edges.update(newEdge.toEdge())
 }
 
-func (p headLoop) removeHead(tail tailVertex, edge edge) {
-	if tail.isFirstEdgeTail(edge) {
-		tail.deleteFirstEdgeTail()
+func (h headLoop) removeHead(head headVertex, edge edgeHead) {
+	if head.isFirstEdgeHead(edge) {
+		head.deleteFirstEdgeHead()
 		return
 	}
-
-	firstPositiveEdge := tail.getFirstEdgeTail(p.edges)
 }

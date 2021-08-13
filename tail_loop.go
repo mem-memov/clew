@@ -5,28 +5,28 @@ type tailLoop struct {
 	edges    edges
 }
 
-func newNegativeLoop(vertices vertices, edges edges) tailLoop {
+func newTailLoop(vertices vertices, edges edges) tailLoop {
 	return tailLoop{vertices: vertices, edges: edges}
 }
 
-func (n tailLoop) readTails(head vertex) []position {
+func (t tailLoop) readTails(vertex tailVertex) []position {
 	tails := make([]position, 0)
 
-	if !head.hasFirstNegativeEdge() {
+	if !vertex.hasFirstEdgeTail() {
 		return tails
 	}
 
-	firstEdge := head.getFirstNegativeEdge(n.edges)
+	firstEdge := vertex.getFirstEdgeTail(t.edges)
 	nextEdge := firstEdge
 
-	tails = append(tails, nextEdge.getPosition())
+	tails = append(tails, nextEdge.toEdge().getPosition())
 
 	for {
-		nextEdge = nextEdge.getNextNegativeEdge(n.edges)
-		if nextEdge.getPosition() == firstEdge.getPosition() {
+		nextEdge = nextEdge.getNextEdgeTail(t.edges)
+		if nextEdge.toEdge().getPosition() == firstEdge.toEdge().getPosition() {
 			return tails
 		}
-		tails = append(tails, nextEdge.getPosition())
+		tails = append(tails, nextEdge.toEdge().getPosition())
 	}
 }
 
@@ -55,9 +55,11 @@ func (t tailLoop) addTail(vertex tailVertex, newEdge edgeTail) {
 	t.edges.update(newEdge.toEdge())
 }
 
-func (n tailLoop) removeTail(head headVertex, edge edge) {
-	if head.isFirstNegative(edge) {
-		head.deleteFirstEdgeHead()
+func (t tailLoop) removeTail(tail tailVertex, edge edgeTail) {
+	if tail.isFirstEdgeTail(edge) {
+		tail.deleteFirstEdgeTail()
 		return
 	}
+
+	//firstPositiveEdge := tail.getFirstEdgeTail(t.edges)
 }

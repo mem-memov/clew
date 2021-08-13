@@ -4,12 +4,12 @@ type biloop struct {
 	vertex       vertex
 	vertices     vertices
 	edges        edges
-	positiveLoop headLoop
-	negativeLoop tailLoop
+	headLoop headLoop
+	tailLoop tailLoop
 }
 
 func newBiloop(vertex vertex, vertices vertices, edges edges, positiveLoop headLoop, negativeLoop tailLoop) biloop {
-	return biloop{vertex: vertex, vertices: vertices, edges: edges, positiveLoop: positiveLoop, negativeLoop: negativeLoop}
+	return biloop{vertex: vertex, vertices: vertices, edges: edges, headLoop: positiveLoop, tailLoop: negativeLoop}
 }
 
 func (b biloop) getPosition() position {
@@ -17,16 +17,16 @@ func (b biloop) getPosition() position {
 }
 
 func (b biloop) readHeads() []position {
-	return b.positiveLoop.readHeads(b.vertex)
+	return b.headLoop.readHeads(b.vertex.toHead())
 }
 
 func (b biloop) readTails() []position {
-	return b.negativeLoop.readTails(b.vertex)
+	return b.tailLoop.readTails(b.vertex.toTail())
 }
 
 func (b biloop) addHead(position position) {
 
-	for _, present := range b.positiveLoop.readHeads(b.vertex.toTail()) {
+	for _, present := range b.headLoop.readHeads(b.vertex.toHead()) {
 		if present == position {
 			return
 		}
@@ -37,41 +37,41 @@ func (b biloop) addHead(position position) {
 	edge.toTail().setTailVertex(b.vertex.toTail())
 	edge.toHead().setHeadVertex(b.vertex.toHead())
 
-	b.positiveLoop.addHead(b.vertex.toTail(), edge.toTail())
-	b.negativeLoop.addTail(b.vertex.toHead(), edge.toHead())
+	b.headLoop.addHead(b.vertex.toHead(), edge.toHead())
+	b.tailLoop.addTail(b.vertex.toTail(), edge.toTail())
 }
 
 func (b biloop) removeHead(position position) {
 
-	tail := b.vertex.toTail()
+	tailVertex := b.vertex.toTail()
 
-	if !tail.hasFirstEdgeTail() {
+	if !tailVertex.hasFirstEdgeTail() {
 		return
 	}
 
-	head := b.vertices.read(position).toHead()
+	headVertex := b.vertices.read(position).toHead()
 
-	if !head.hasFirstEdgeHead() {
+	if !headVertex.hasFirstEdgeHead() {
 		return
 	}
 
-	firstEdge := tail.getFirstEdgeTail(b.edges)
+	firstEdge := tailVertex.getFirstEdgeTail(b.edges)
 	nextEdge := firstEdge
 
-	if nextEdge.hasPositiveVertex(head.toVertex()) {
-		b.positiveLoop.removeHead(tail, nextEdge)
-		b.negativeLoop.removeTail(head, nextEdge)
+	if nextEdge.hasTailVertex(tailVertex) {
+		b.headLoop.removeHead(tailVertex, nextEdge)
+		b.tailLoop.removeTail(headVertex, nextEdge)
 		b.edges.produceHole(nextEdge)
 	}
 
 	for {
-		nextEdge = nextEdge.getNextPositiveEdge(b.edges)
+		nextEdge = nextEdge.getNextEdgeTail(b.edges)
 		if nextEdge.getPosition() == firstEdge.getPosition() {
 			return
 		}
-		if nextEdge.hasPositiveVertex(head.toVertex()) {
-			b.positiveLoop.removeHead(tail, nextEdge)
-			b.negativeLoop.removeTail(head, nextEdge)
+		if nextEdge.hasPositiveVertex(headVertex.toVertex()) {
+			b.headLoop.removeHead(tailVertex, nextEdge)
+			b.tailLoop.removeTail(headVertex, nextEdge)
 			b.edges.produceHole(nextEdge)
 		}
 	}

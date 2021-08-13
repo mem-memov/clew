@@ -3,24 +3,24 @@ package klubok
 type headVertex vertex
 
 func (h headVertex) hasFirstEdgeHead() bool {
-	return h.entry[firstNegative] != void
+	return h.entry[firstEdgeTailPosition] != void
 }
 
 func (h headVertex) getFirstEdgeHead(edges edges) edgeHead {
-	return edges.read(h.entry[firstNegative]).toHead()
+	return edges.read(h.entry[firstEdgeTailPosition]).toHead()
 }
 
 func (h headVertex) setFirstEdgeHead(edgeHead edgeHead) {
-	h.entry[firstNegative] = edgeHead.toEdge().getPosition()
-	h.entry[negativeCount]++
+	h.entry[firstEdgeTailPosition] = edgeHead.toEdge().getPosition()
+	h.entry[tailEdgeCountPosition]++
 }
 
 func (h headVertex) isFirstEdgeHead(edgeHead edgeHead) bool {
-	return h.entry[firstNegative] == edgeHead.toEdge().getPosition()
+	return h.entry[firstEdgeTailPosition] == edgeHead.toEdge().getPosition()
 }
 
 func (h headVertex) deleteFirstEdgeHead() {
-	h.entry[firstNegative] = void
+	h.entry[firstEdgeTailPosition] = void
 }
 
 func (h headVertex) toVertex() vertex {

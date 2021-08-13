@@ -1,12 +1,12 @@
 package klubok
 
 const (
-	identifier     position = 0
-	previousVertex position = 1
-	positiveCount  position = 2
-	firstPositive  position = 3
-	negativeCount  position = 4
-	firstNegative  position = 5
+	identifierPosition     position = 0
+	previousVertexPosition position = 1
+	headEdgeCountPosition  position = 2
+	firstEdgeHeadPosition  position = 3
+	tailEdgeCountPosition  position = 4
+	firstEdgeTailPosition  position = 5
 )
 
 type vertex struct {
@@ -14,16 +14,16 @@ type vertex struct {
 	entry    entry
 }
 
-func newVertex(position position, previousVertexPosition position) vertex {
+func newVertex(newVertex position, previousVertex position) vertex {
 	entry := newVoidEntry()
-	entry[identifier] = position
-	entry[previousVertex] = previousVertexPosition
-	entry[positiveCount] = 0
-	entry[firstPositive] = void
-	entry[negativeCount] = 0
-	entry[firstNegative] = void
+	entry[identifierPosition] = newVertex
+	entry[previousVertexPosition] = previousVertex
+	entry[headEdgeCountPosition] = 0
+	entry[firstEdgeHeadPosition] = void
+	entry[tailEdgeCountPosition] = 0
+	entry[firstEdgeTailPosition] = void
 
-	return vertex{position: position, entry: entry}
+	return vertex{position: newVertex, entry: entry}
 }
 
 func newVertexWithEntry(position position, entry entry) vertex {
@@ -31,7 +31,7 @@ func newVertexWithEntry(position position, entry entry) vertex {
 }
 
 func (v vertex) getPosition() position {
-	return v.entry[identifier]
+	return v.entry[identifierPosition]
 }
 
 func (v vertex) toTail() tailVertex {
