@@ -1,78 +1,78 @@
 package klubok
 
 type biloop struct {
-	vertex       vertex
-	vertices     vertices
-	edges        edges
-	headLoop headLoop
-	tailLoop tailLoop
+	node   node
+	nodes  nodes
+	arrows arrows
+	heads  heads
+	tails  tails
 }
 
-func newBiloop(vertex vertex, vertices vertices, edges edges, positiveLoop headLoop, negativeLoop tailLoop) biloop {
-	return biloop{vertex: vertex, vertices: vertices, edges: edges, headLoop: positiveLoop, tailLoop: negativeLoop}
+func newBiloop(vertex node, vertices nodes, arrows arrows, positiveLoop heads, negativeLoop tails) biloop {
+	return biloop{node: vertex, nodes: vertices, arrows: arrows, heads: positiveLoop, tails: negativeLoop}
 }
 
 func (b biloop) getPosition() position {
-	return b.vertex.getPosition()
+	return b.node.getPosition()
 }
 
-func (b biloop) readHeads() []position {
-	return b.headLoop.readHeads(b.vertex.toHead())
+func (b biloop) readSources() []position {
+	return b.heads.readHeads(b.node.toTarget())
 }
 
-func (b biloop) readTails() []position {
-	return b.tailLoop.readTails(b.vertex.toTail())
+func (b biloop) readTargets() []position {
+	return b.tails.readTails(b.node.toSource())
 }
 
-func (b biloop) addHead(position position) {
+func (b biloop) addTarget(position position) {
 
-	for _, present := range b.headLoop.readHeads(b.vertex.toHead()) {
+	for _, present := range b.heads.readHeads(b.node.toTarget()) {
 		if present == position {
 			return
 		}
 	}
 
-	edge := b.edges.create()
+	arrow := b.arrows.create()
 
-	edge.toTail().setTailVertex(b.vertex.toTail())
-	edge.toHead().setHeadVertex(b.vertex.toHead())
+	arrow.toTail().setSource(b.node.toSource())
+	arrow.toHead().setTarget(b.node.toTarget())
 
-	b.headLoop.addHead(b.vertex.toHead(), edge.toHead())
-	b.tailLoop.addTail(b.vertex.toTail(), edge.toTail())
+	b.heads.addHead(b.node.toTarget(), arrow.toHead())
+	b.tails.addTail(b.node.toSource(), arrow.toTail())
 }
 
-func (b biloop) removeHead(position position) {
+func (b biloop) removeTarget(position position) {
 
-	tailVertex := b.vertex.toTail()
+	source := b.node.toSource()
 
-	if !tailVertex.hasFirstEdgeTail() {
+	if !source.hasFirstTail() {
 		return
 	}
 
-	headVertex := b.vertices.read(position).toHead()
+	target := b.nodes.read(position).toTarget()
 
-	if !headVertex.hasFirstEdgeHead() {
+	if !target.hasFirstHead() {
 		return
 	}
 
-	firstEdge := tailVertex.getFirstEdgeTail(b.edges)
-	nextEdge := firstEdge
+	first := source.getFirstTail(b.arrows)
+	tail := first
 
-	if nextEdge.hasTailVertex(tailVertex) {
-		b.headLoop.removeHead(tailVertex, nextEdge)
-		b.tailLoop.removeTail(headVertex, nextEdge)
-		b.edges.produceHole(nextEdge)
+	if tail.toArrow().toHead().hasTarget(target) {
+		b.heads.removeHead(target, tail.toArrow().toHead())
+		b.tails.removeTail(source, tail)
+		b.arrows.produceHole(tail.toArrow())
 	}
 
 	for {
-		nextEdge = nextEdge.getNextEdgeTail(b.edges)
-		if nextEdge.getPosition() == firstEdge.getPosition() {
+		tail = tail.getNext(b.arrows)
+		if tail.toArrow().getPosition() == first.toArrow().getPosition() {
 			return
 		}
-		if nextEdge.hasPositiveVertex(headVertex.toVertex()) {
-			b.headLoop.removeHead(tailVertex, nextEdge)
-			b.tailLoop.removeTail(headVertex, nextEdge)
-			b.edges.produceHole(nextEdge)
+		if tail.toArrow().toHead().hasTarget(target) {
+			b.heads.removeHead(target, tail.toArrow().toHead())
+			b.tails.removeTail(source, tail)
+			b.arrows.produceHole(tail.toArrow())
 		}
 	}
 }

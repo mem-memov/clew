@@ -1,23 +1,23 @@
 package klubok
 
 type biloops struct {
-	vertices     vertices
-	edges        edges
-	positiveLoop headLoop
-	negativeLoop tailLoop
+	nodes        nodes
+	arrows       arrows
+	positiveLoop heads
+	negativeLoop tails
 }
 
-func newBiloops(vertices vertices, edges edges, positiveLoop headLoop, negativeLoop tailLoop) biloops {
-	return biloops{vertices: vertices, edges: edges, positiveLoop: positiveLoop, negativeLoop: negativeLoop}
+func newBiloops(vertices nodes, arrows arrows, positiveLoop heads, negativeLoop tails) biloops {
+	return biloops{nodes: vertices, arrows: arrows, positiveLoop: positiveLoop, negativeLoop: negativeLoop}
 }
 
 func (b biloops) create() biloop {
-	vertex := b.vertices.create()
-	b.vertices.update(vertex)
-	return newBiloop(vertex, b.vertices, b.edges, b.positiveLoop, b.negativeLoop)
+	vertex := b.nodes.create()
+	b.nodes.update(vertex)
+	return newBiloop(vertex, b.nodes, b.arrows, b.positiveLoop, b.negativeLoop)
 }
 
 func (b biloops) read(position position) biloop {
-	vertex := b.vertices.read(position)
-	return newBiloop(vertex, b.vertices, b.edges, b.positiveLoop, b.negativeLoop)
+	vertex := b.nodes.read(position)
+	return newBiloop(vertex, b.nodes, b.arrows, b.positiveLoop, b.negativeLoop)
 }
