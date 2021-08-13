@@ -15,16 +15,7 @@ type arrow struct {
 }
 
 func newArrow(position position) arrow {
-	// the first arrow of a node is connected to itself
-	entry := newVoidEntry()
-	entry[targetPosition] = void
-	entry[previousHeadPosition] = position
-	entry[nextHeadPosition] = position
-	entry[sourcePosition] = void
-	entry[previousTailPosition] = position
-	entry[nextTailPosition] = position
-
-	return arrow{position: position, entry: entry}
+	return arrow{position: position, entry: newVoidEntry()}
 }
 
 func existingArrow(position position, entry entry) arrow {

@@ -1,30 +1,29 @@
 package klubok
 
 type holes struct {
-	lastHole position
-	entries  entries
+	lastHolePosition position
+	entries          entries
 }
 
 func newHoles(entries entries, lastHole position) holes {
 	return holes{
-		lastHole: lastHole,
-		entries:  entries,
+		lastHolePosition: lastHole,
+		entries:          entries,
 	}
 }
 
 func (h holes) exist() bool {
-	return h.lastHole == void
+	return h.lastHolePosition != void
 }
 
-func (h holes) last() position {
-	return h.lastHole
+func (h holes) consumeHole() position {
+	lastHole := existingHole(h.lastHolePosition, h.entries.read(h.lastHolePosition))
+	h.lastHolePosition = lastHole.getPreviousHolePosition()
+	return lastHole.getPosition()
 }
 
-func (h holes) produceHole(u updater) {
-	lastHole := newHole(h.lastHole, h.entries.read(h.lastHole))
-}
-
-func (h holes) consumeHole(u updater) {
-	lastHole := newHole(h.lastHole, h.entries.read(h.lastHole))
-	h.lastHole = lastHole.consume(h.entries, u, h.lastHole)
+func (h holes) produceHole(position position) {
+	newHole := newHole(position, h.lastHolePosition)
+	newHole.update(h.entries)
+	h.lastHolePosition = position
 }

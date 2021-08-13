@@ -58,22 +58,23 @@ func (b biloop) removeTarget(position position) {
 	first := source.getFirstTail(b.arrows)
 	tail := first
 
-	if tail.toArrow().toHead().hasTarget(target) {
-		b.heads.removeHead(target, tail.toArrow().toHead())
+	if tail.toHead().hasTarget(target) {
+		b.heads.removeHead(target, tail.toHead())
 		b.tails.removeTail(source, tail)
 		b.arrows.produceHole(tail.toArrow())
 	}
 
 	for {
 		tail = tail.getNext(b.arrows)
-		if tail.toArrow().getPosition() == first.toArrow().getPosition() {
+		if tail.isSame(first) {
 			return
 		}
-		if tail.toArrow().toHead().hasTarget(target) {
-			b.heads.removeHead(target, tail.toArrow().toHead())
-			b.tails.removeTail(source, tail)
-			b.arrows.produceHole(tail.toArrow())
+		if !tail.toHead().hasTarget(target) {
+			continue
 		}
+		b.heads.removeHead(target, tail.toHead())
+		b.tails.removeTail(source, tail)
+		b.arrows.produceHole(tail.toArrow())
 	}
 }
 

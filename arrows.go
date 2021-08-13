@@ -13,15 +13,14 @@ func newArrows(entries entries, holes holes) arrows {
 }
 
 func (e arrows) produceHole(arrow arrow) {
-	e.holes.produceHole(arrow)
+	e.holes.produceHole(arrow.getPosition())
 }
 
 func (e arrows) create() arrow {
 
 	var arrow arrow
 	if e.holes.exist() {
-		arrow = newArrow(e.holes.last())
-		e.holes.consumeHole(arrow)
+		arrow = newArrow(e.holes.consumeHole())
 	} else {
 		arrow = newArrow(e.entries.next())
 	}

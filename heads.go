@@ -1,12 +1,12 @@
 package klubok
 
 type heads struct {
-	vertices nodes
-	arrows   arrows
+	nodes  nodes
+	arrows arrows
 }
 
 func newHeads(vertices nodes, arrows arrows) heads {
-	return heads{vertices: vertices, arrows: arrows}
+	return heads{nodes: vertices, arrows: arrows}
 }
 
 func (h heads) readHeads(target target) []position {
@@ -23,7 +23,7 @@ func (h heads) readHeads(target target) []position {
 
 	for {
 		next = next.getNext(h.arrows)
-		if next.toArrow().getPosition() == first.toArrow().getPosition() {
+		if next.isSame(first) {
 			return heads
 		}
 		heads = append(heads, next.toArrow().getPosition())
@@ -35,7 +35,7 @@ func (h heads) addHead(target target, new head) {
 	if !target.hasFirstHead() {
 
 		target.setFirstHead(new)
-		h.vertices.update(target.toVertex())
+		h.nodes.update(target.toVertex())
 	} else {
 
 		first := target.getFirstHead(h.arrows)
@@ -59,9 +59,36 @@ func (h heads) addHead(target target, new head) {
 	h.arrows.update(new.toArrow())
 }
 
-func (h heads) removeHead(head target, arrow head) {
-	if head.isFirstHead(arrow) {
-		head.deleteFirstHead()
+func (h heads) removeHead(target target, removed head) {
+
+	first := target.getFirstHead(h.arrows)
+	if first.isSame(removed) {
+		if first.isSurrounded()  {
+			next := first.getPrevious(h.arrows).bindNext(first.getNext(h.arrows), h.arrows)
+			target.setFirstHead(next)
+		} else if first.isPaired() {
+			second := first.getNext(h.arrows)
+			second.deletePrevious()
+			second.deleteNext()
+			target.setFirstHead(second)
+		} else if first.isAlone() {
+			target.deleteFirstHead()
+		}
+		h.nodes.update(target.toVertex())
 		return
+	}
+
+	previous := first
+
+	for {
+		current := previous.getNext(h.arrows)
+		if current.isSame(first) {
+			return
+		}
+		if current.isSame(removed) {
+			previous.bindNext(current.getNext(h.arrows), h.arrows)
+			return
+		}
+		previous = current
 	}
 }

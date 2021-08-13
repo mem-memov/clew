@@ -1,7 +1,7 @@
 package klubok
 
 const (
-	nextHole position = 0
+	previousHolePosition position = 0
 )
 
 type hole struct {
@@ -9,15 +9,24 @@ type hole struct {
 	entry    entry
 }
 
-func newHole(position position, entry entry) hole {
+func newHole(position position, previous position) hole {
+	entry := newVoidEntry()
+	entry[previousHolePosition] = position
+	return hole{position: position, entry: newVoidEntry()}
+}
+
+func existingHole(position position, entry entry) hole {
 	return hole{position: position, entry: entry}
 }
 
-func (h hole) produce() {
-
+func (h hole) getPosition() position {
+	return h.entry[previousHolePosition]
 }
 
-func (h hole) consume(s entries, u updater, p position) position {
-	u.update(s, p)
-	return h.entry[nextHole]
+func (h hole) getPreviousHolePosition() position {
+	return h.entry[previousHolePosition]
+}
+
+func (h hole) update(entries entries) {
+	entries.update(h.position, h.entry)
 }

@@ -1,12 +1,12 @@
 package klubok
 
 type tails struct {
-	vertices nodes
-	arrows   arrows
+	nodes  nodes
+	arrows arrows
 }
 
 func newTails(vertices nodes, arrows arrows) tails {
-	return tails{vertices: vertices, arrows: arrows}
+	return tails{nodes: vertices, arrows: arrows}
 }
 
 func (t tails) readTails(source source) []position {
@@ -23,7 +23,7 @@ func (t tails) readTails(source source) []position {
 
 	for {
 		next = next.getNext(t.arrows)
-		if next.toArrow().getPosition() == first.toArrow().getPosition() {
+		if next.isSame(first) {
 			return tails
 		}
 		tails = append(tails, next.toArrow().getPosition())
@@ -35,7 +35,7 @@ func (t tails) addTail(source source, new tail) {
 	if !source.hasFirstTail() {
 
 		source.setFirstTail(new)
-		t.vertices.update(source.toVertex())
+		t.nodes.update(source.toVertex())
 	} else {
 
 		first := source.getFirstTail(t.arrows)
@@ -59,11 +59,36 @@ func (t tails) addTail(source source, new tail) {
 	t.arrows.update(new.toArrow())
 }
 
-func (t tails) removeTail(source source, arrow tail) {
-	if source.isFirstTail(arrow) {
-		source.deleteFirstTail()
+func (t tails) removeTail(source source, removed tail) {
+
+	first := source.getFirstTail(t.arrows)
+	if first.isSame(removed) {
+		if first.isSurrounded()  {
+			next := first.getPrevious(t.arrows).bindNext(first.getNext(t.arrows), t.arrows)
+			source.setFirstTail(next)
+		} else if first.isPaired() {
+			second := first.getNext(t.arrows)
+			second.deletePrevious()
+			second.deleteNext()
+			source.setFirstTail(second)
+		} else if first.isAlone() {
+			source.deleteFirstTail()
+		}
+		t.nodes.update(source.toVertex())
 		return
 	}
 
-	//firstPositiveArrow := source.getFirstTail(t.arrows)
+	previous := first
+
+	for {
+		current := previous.getNext(t.arrows)
+		if current.isSame(first) {
+			return
+		}
+		if current.isSame(removed) {
+			previous.bindNext(current.getNext(t.arrows), t.arrows)
+			return
+		}
+		previous = current
+	}
 }
