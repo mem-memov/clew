@@ -26,19 +26,19 @@ func (m mix) readTargets() []position {
 
 func (m mix) addTarget(position position) {
 
-	for _, present := range m.heads.readHeads(m.node.toTarget()) {
+	source := m.node.toSource()
+	target := m.nodes.read(position).toTarget()
+
+	for _, present := range m.tails.readTails(source) {
 		if present == position {
 			return
 		}
 	}
 
-	arrow := m.arrows.create()
+	arrow := m.arrows.create(source, target)
 
-	arrow.toTail().setSource(m.node.toSource())
-	arrow.toHead().setTarget(m.node.toTarget())
-
-	m.heads.addHead(m.node.toTarget(), arrow.toHead())
-	m.tails.addTail(m.node.toSource(), arrow.toTail())
+	m.tails.addTail(source, arrow.toTail())
+	m.heads.addHead(target, arrow.toHead())
 }
 
 func (m mix) removeTarget(position position) {

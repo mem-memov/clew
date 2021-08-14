@@ -14,8 +14,11 @@ type arrow struct {
 	entry    entry
 }
 
-func newArrow(position position) arrow {
-	return arrow{position: position, entry: newVoidEntry()}
+func newArrow(position position, source source, target target) arrow {
+	entry := newVoidEntry()
+	entry[targetPosition] = target.toNode().getPosition()
+	entry[sourcePosition] = source.toNode().getPosition()
+	return arrow{position: position, entry: entry}
 }
 
 func existingArrow(position position, entry entry) arrow {

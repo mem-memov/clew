@@ -13,7 +13,6 @@ func newMixes(nodes *nodes, arrows *arrows, heads *heads, tails *tails) *mixes {
 
 func (b *mixes) create() mix {
 	node := b.nodes.create()
-	b.nodes.update(node)
 	return newMix(node, b.nodes, b.arrows, b.heads, b.tails)
 }
 

@@ -16,14 +16,14 @@ func (a *arrows) produceHole(arrow arrow) {
 	a.holes.produceHole(arrow.getPosition())
 }
 
-func (a *arrows) create() arrow {
+func (a *arrows) create(source source, target target) arrow {
 
 	var arrow arrow
 	if a.holes.exist() {
-		arrow = newArrow(a.holes.consumeHole())
+		arrow = newArrow(a.holes.consumeHole(), source, target)
 		arrow.update(a.entries)
 	} else {
-		arrow = newArrow(a.entries.next())
+		arrow = newArrow(a.entries.next(), source, target)
 		arrow.append(a.entries)
 	}
 
