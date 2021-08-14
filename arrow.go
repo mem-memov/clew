@@ -34,10 +34,10 @@ func (e arrow) toHead() head {
 	return head(e)
 }
 
-func (e arrow) update(entries entries) {
+func (e arrow) update(entries *entries) {
 	entries.update(e.position, e.entry)
 }
 
-func (e arrow) append(entries entries) {
+func (e arrow) append(entries *entries) {
 	entries.append(e.entry)
 }

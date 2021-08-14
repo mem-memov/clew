@@ -1,15 +1,15 @@
 package clew
 
 type heads struct {
-	nodes  nodes
-	arrows arrows
+	nodes  *nodes
+	arrows *arrows
 }
 
-func newHeads(nodes nodes, arrows arrows) heads {
-	return heads{nodes: nodes, arrows: arrows}
+func newHeads(nodes *nodes, arrows *arrows) *heads {
+	return &heads{nodes: nodes, arrows: arrows}
 }
 
-func (h heads) readHeads(target target) []position {
+func (h *heads) readHeads(target target) []position {
 	heads := make([]position, 0)
 
 	if !target.hasFirstHead() {
@@ -30,7 +30,7 @@ func (h heads) readHeads(target target) []position {
 	}
 }
 
-func (h heads) addHead(target target, new head) {
+func (h *heads) addHead(target target, new head) {
 
 	if !target.hasFirstHead() {
 
@@ -59,7 +59,7 @@ func (h heads) addHead(target target, new head) {
 	h.arrows.update(new.toArrow())
 }
 
-func (h heads) removeHead(target target, removed head) {
+func (h *heads) removeHead(target target, removed head) {
 
 	first := target.getFirstHead(h.arrows)
 	if first.isSame(removed) {
@@ -93,7 +93,7 @@ func (h heads) removeHead(target target, removed head) {
 	}
 }
 
-func (h heads) deleteTarget(target target) {
+func (h *heads) deleteTarget(target target) {
 	if !target.hasFirstHead() {
 		return
 	}

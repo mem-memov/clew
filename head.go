@@ -14,7 +14,7 @@ func (h head) setTarget(target target) {
 	h.entry[targetPosition] = target.toNode().getPosition()
 }
 
-func (h head) getTarget(nodes nodes) target {
+func (h head) getTarget(nodes *nodes) target {
 	return nodes.read(h.entry[targetPosition]).toTarget()
 }
 
@@ -22,7 +22,7 @@ func (h head) hasPrevious() bool {
 	return h.entry[previousHeadPosition] != void
 }
 
-func (h head) getPrevious(arrows arrows) head {
+func (h head) getPrevious(arrows *arrows) head {
 	return arrows.read(h.entry[previousHeadPosition]).toHead()
 }
 
@@ -38,7 +38,7 @@ func (h head) hasNext() bool {
 	return h.entry[nextHeadPosition] != void
 }
 
-func (h head) getNext(arrows arrows) head {
+func (h head) getNext(arrows *arrows) head {
 	return arrows.read(h.entry[nextHeadPosition]).toHead()
 }
 
@@ -62,7 +62,7 @@ func (h head) isAlone() bool {
 	return h.entry[previousHeadPosition] == void && h.entry[nextHeadPosition] == void
 }
 
-func (h head) bindNext(next head, arrows arrows) head {
+func (h head) bindNext(next head, arrows *arrows) head {
 	h.setNext(next)
 	next.setPrevious(h)
 	arrows.update(h.toArrow())

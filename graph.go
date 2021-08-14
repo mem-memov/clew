@@ -1,7 +1,7 @@
 package clew
 
 type Graph struct {
-	mixes mixes
+	mixes *mixes
 }
 
 func NewGraph(storage storage) *Graph {

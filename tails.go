@@ -1,15 +1,15 @@
 package clew
 
 type tails struct {
-	nodes  nodes
-	arrows arrows
+	nodes  *nodes
+	arrows *arrows
 }
 
-func newTails(nodes nodes, arrows arrows) tails {
-	return tails{nodes: nodes, arrows: arrows}
+func newTails(nodes *nodes, arrows *arrows) *tails {
+	return &tails{nodes: nodes, arrows: arrows}
 }
 
-func (t tails) readTails(source source) []position {
+func (t *tails) readTails(source source) []position {
 	tails := make([]position, 0)
 
 	if !source.hasFirstTail() {
@@ -30,7 +30,7 @@ func (t tails) readTails(source source) []position {
 	}
 }
 
-func (t tails) addTail(source source, new tail) {
+func (t *tails) addTail(source source, new tail) {
 
 	if !source.hasFirstTail() {
 
@@ -59,7 +59,7 @@ func (t tails) addTail(source source, new tail) {
 	t.arrows.update(new.toArrow())
 }
 
-func (t tails) removeTail(source source, removed tail) {
+func (t *tails) removeTail(source source, removed tail) {
 
 	first := source.getFirstTail(t.arrows)
 	if first.isSame(removed) {
@@ -93,7 +93,7 @@ func (t tails) removeTail(source source, removed tail) {
 	}
 }
 
-func (t tails) deleteSource(source source) {
+func (t *tails) deleteSource(source source) {
 	if !source.hasFirstTail() {
 		return
 	}

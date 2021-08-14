@@ -42,10 +42,10 @@ func (n node) toTarget() target {
 	return target(n)
 }
 
-func (n node) update(entries entries) {
+func (n node) update(entries *entries) {
 	entries.update(n.position, n.entry)
 }
 
-func (n node) append(entries entries) {
+func (n node) append(entries *entries) {
 	entries.append(n.entry)
 }

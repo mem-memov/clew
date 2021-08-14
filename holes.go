@@ -2,11 +2,11 @@ package clew
 
 type holes struct {
 	lastHolePosition position
-	entries          entries
+	entries          *entries
 }
 
-func newHoles(entries entries, lastHole position) holes {
-	return holes{
+func newHoles(entries *entries, lastHole position) *holes {
+	return &holes{
 		lastHolePosition: lastHole,
 		entries:          entries,
 	}

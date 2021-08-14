@@ -2,13 +2,13 @@ package clew
 
 type mix struct {
 	node   node
-	nodes  nodes
-	arrows arrows
-	heads  heads
-	tails  tails
+	nodes  *nodes
+	arrows *arrows
+	heads  *heads
+	tails  *tails
 }
 
-func newMix(node node, nodes nodes, arrows arrows, heads heads, tails tails) mix {
+func newMix(node node, nodes *nodes, arrows *arrows, heads *heads, tails *tails) mix {
 	return mix{node: node, nodes: nodes, arrows: arrows, heads: heads, tails: tails}
 }
 

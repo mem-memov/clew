@@ -18,7 +18,7 @@ func (t tail) hasNext() bool {
 	return t.entry[nextTailPosition] != void
 }
 
-func (t tail) getNext(arrows arrows) tail {
+func (t tail) getNext(arrows *arrows) tail {
 	return arrows.read(t.entry[nextTailPosition]).toTail()
 }
 
@@ -34,7 +34,7 @@ func (t tail) hasPrevious() bool {
 	return t.entry[previousTailPosition] != void
 }
 
-func (t tail) getPrevious(arrows arrows) tail {
+func (t tail) getPrevious(arrows *arrows) tail {
 	return arrows.read(t.entry[previousTailPosition]).toTail()
 }
 
@@ -58,7 +58,7 @@ func (t tail) isAlone() bool {
 	return t.entry[previousTailPosition] == void && t.entry[nextTailPosition] == void
 }
 
-func (t tail) bindNext(next tail, arrows arrows) tail {
+func (t tail) bindNext(next tail, arrows *arrows) tail {
 	t.setNext(next)
 	next.setPrevious(t)
 	arrows.update(t.toArrow())

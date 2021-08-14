@@ -6,7 +6,7 @@ func (s source) hasFirstTail() bool {
 	return s.entry[firstTailPosition] != void
 }
 
-func (s source) getFirstTail(arrows arrows) tail {
+func (s source) getFirstTail(arrows *arrows) tail {
 	return arrows.read(s.entry[firstTailPosition]).toTail()
 }
 
