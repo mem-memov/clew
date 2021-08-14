@@ -29,11 +29,11 @@ func (m mix) addTarget(position position) {
 	source := m.node.toSource()
 	target := m.nodes.read(position).toTarget()
 
-	for _, present := range m.tails.readTails(source) {
-		if present == position {
-			return
-		}
-	}
+	//for _, present := range m.tails.readTails(source) {
+	//	if present == position {
+	//		return
+	//	}
+	//}
 
 	arrow := m.arrows.create(source, target)
 

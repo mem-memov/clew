@@ -10,10 +10,6 @@ func (t tail) hasSource(source source) bool {
 	return t.entry[sourcePosition] == source.toNode().getPosition()
 }
 
-func (t tail) setSource(source source) {
-	t.entry[sourcePosition] = source.toNode().getPosition()
-}
-
 func (t tail) hasNext() bool {
 	return t.entry[nextTailPosition] != void
 }
@@ -22,12 +18,14 @@ func (t tail) getNext(arrows *arrows) tail {
 	return arrows.read(t.entry[nextTailPosition]).toTail()
 }
 
-func (t tail) setNext(arrow tail) {
+func (t tail) setNext(arrow tail) tail {
 	t.entry[nextTailPosition] = arrow.toArrow().getPosition()
+	return t
 }
 
-func (t tail) deleteNext() {
+func (t tail) deleteNext() tail {
 	t.entry[nextTailPosition] = void
+	return t
 }
 
 func (t tail) hasPrevious() bool {
@@ -38,12 +36,14 @@ func (t tail) getPrevious(arrows *arrows) tail {
 	return arrows.read(t.entry[previousTailPosition]).toTail()
 }
 
-func (t tail) setPrevious(tail tail) {
+func (t tail) setPrevious(tail tail) tail {
 	t.entry[previousTailPosition] = tail.toArrow().getPosition()
+	return t
 }
 
-func (t tail) deletePrevious() {
+func (t tail) deletePrevious() tail {
 	t.entry[previousTailPosition] = void
+	return t
 }
 
 func (t tail) isSurrounded() bool {
@@ -59,9 +59,9 @@ func (t tail) isAlone() bool {
 }
 
 func (t tail) bindNext(next tail, arrows *arrows) tail {
-	t.setNext(next)
-	next.setPrevious(t)
-	arrows.update(t.toArrow())
+	current := t.setNext(next)
+	next = next.setPrevious(current)
+	arrows.update(current.toArrow())
 	arrows.update(next.toArrow())
 	return next
 }

@@ -22,6 +22,9 @@ func (t *tails) readTails(source source) []position {
 	tails = append(tails, next.toArrow().getPosition())
 
 	for {
+		if !next.hasNext() {
+			return tails
+		}
 		next = next.getNext(t.arrows)
 		if next.isSame(first) {
 			return tails
@@ -34,7 +37,7 @@ func (t *tails) addTail(source source, new tail) {
 
 	if !source.hasFirstTail() {
 
-		source.setFirstTail(new)
+		source = source.setFirstTail(new)
 		t.nodes.update(source.toNode())
 	} else {
 
@@ -42,16 +45,16 @@ func (t *tails) addTail(source source, new tail) {
 		if first.hasPrevious() {
 
 			last := first.getPrevious(t.arrows)
-			last.setNext(new)
-			new.setPrevious(last)
-			new.setNext(first)
-			first.setPrevious(new)
+			last = last.setNext(new)
+			new = new.setPrevious(last)
+			new = new.setNext(first)
+			first = first.setPrevious(new)
 			t.arrows.update(last.toArrow())
 		} else {
 
-			first.setPrevious(new)
-			new.setPrevious(first)
-			new.setNext(first)
+			first = first.setPrevious(new)
+			new = new.setPrevious(first)
+			new = new.setNext(first)
 		}
 		t.arrows.update(first.toArrow())
 	}
@@ -68,11 +71,11 @@ func (t *tails) removeTail(source source, removed tail) {
 			source.setFirstTail(next)
 		} else if first.isPaired() {
 			second := first.getNext(t.arrows)
-			second.deletePrevious()
-			second.deleteNext()
+			second = second.deletePrevious()
+			second = second.deleteNext()
 			source.setFirstTail(second)
 		} else if first.isAlone() {
-			source.deleteFirstTail()
+			source = source.deleteFirstTail()
 		}
 		t.nodes.update(source.toNode())
 		return

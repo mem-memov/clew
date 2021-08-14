@@ -1,7 +1,6 @@
 package clew
 
 import (
-	//"reflect"
 	"reflect"
 	"testing"
 )

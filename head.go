@@ -10,10 +10,6 @@ func (h head) hasTarget(target target) bool {
 	return h.entry[targetPosition] == target.toNode().getPosition()
 }
 
-func (h head) setTarget(target target) {
-	h.entry[targetPosition] = target.toNode().getPosition()
-}
-
 func (h head) getTarget(nodes *nodes) target {
 	return nodes.read(h.entry[targetPosition]).toTarget()
 }
@@ -26,12 +22,14 @@ func (h head) getPrevious(arrows *arrows) head {
 	return arrows.read(h.entry[previousHeadPosition]).toHead()
 }
 
-func (h head) setPrevious(head head) {
+func (h head) setPrevious(head head) head {
 	h.entry[previousHeadPosition] = head.toArrow().getPosition()
+	return h
 }
 
-func (h head) deletePrevious() {
+func (h head) deletePrevious() head {
 	h.entry[previousHeadPosition] = void
+	return h
 }
 
 func (h head) hasNext() bool {
@@ -42,12 +40,14 @@ func (h head) getNext(arrows *arrows) head {
 	return arrows.read(h.entry[nextHeadPosition]).toHead()
 }
 
-func (h head) setNext(head head) {
+func (h head) setNext(head head) head {
 	h.entry[nextHeadPosition] = head.toArrow().getPosition()
+	return h
 }
 
-func (h head) deleteNext() {
+func (h head) deleteNext() head {
 	h.entry[nextHeadPosition] = void
+	return h
 }
 
 func (h head) isSurrounded() bool {
@@ -63,9 +63,9 @@ func (h head) isAlone() bool {
 }
 
 func (h head) bindNext(next head, arrows *arrows) head {
-	h.setNext(next)
-	next.setPrevious(h)
-	arrows.update(h.toArrow())
+	current := h.setNext(next)
+	next = next.setPrevious(current)
+	arrows.update(current.toArrow())
 	arrows.update(next.toArrow())
 	return next
 }

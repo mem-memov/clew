@@ -22,6 +22,9 @@ func (h *heads) readHeads(target target) []position {
 	heads = append(heads, next.toArrow().getPosition())
 
 	for {
+		if !next.hasNext() {
+			return heads
+		}
 		next = next.getNext(h.arrows)
 		if next.isSame(first) {
 			return heads
@@ -34,7 +37,7 @@ func (h *heads) addHead(target target, new head) {
 
 	if !target.hasFirstHead() {
 
-		target.setFirstHead(new)
+		target = target.setFirstHead(new)
 		h.nodes.update(target.toNode())
 	} else {
 
@@ -42,16 +45,16 @@ func (h *heads) addHead(target target, new head) {
 		if first.hasPrevious() {
 
 			last := first.getPrevious(h.arrows)
-			last.setNext(new)
-			new.setPrevious(last)
-			new.setNext(first)
-			first.setPrevious(new)
+			last = last.setNext(new)
+			new = new.setPrevious(last)
+			new = new.setNext(first)
+			first = first.setPrevious(new)
 			h.arrows.update(last.toArrow())
 		} else {
 
-			first.setPrevious(new)
-			new.setPrevious(first)
-			new.setNext(first)
+			first = first.setPrevious(new)
+			new = new.setPrevious(first)
+			new = new.setNext(first)
 		}
 		h.arrows.update(first.toArrow())
 	}
@@ -65,14 +68,14 @@ func (h *heads) removeHead(target target, removed head) {
 	if first.isSame(removed) {
 		if first.isSurrounded() {
 			next := first.getPrevious(h.arrows).bindNext(first.getNext(h.arrows), h.arrows)
-			target.setFirstHead(next)
+			target = target.setFirstHead(next)
 		} else if first.isPaired() {
 			second := first.getNext(h.arrows)
-			second.deletePrevious()
-			second.deleteNext()
-			target.setFirstHead(second)
+			second = second.deletePrevious()
+			second = second.deleteNext()
+			target = target.setFirstHead(second)
 		} else if first.isAlone() {
-			target.deleteFirstHead()
+			target = target.deleteFirstHead()
 		}
 		h.nodes.update(target.toNode())
 		return
