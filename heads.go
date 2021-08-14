@@ -5,8 +5,8 @@ type heads struct {
 	arrows arrows
 }
 
-func newHeads(vertices nodes, arrows arrows) heads {
-	return heads{nodes: vertices, arrows: arrows}
+func newHeads(nodes nodes, arrows arrows) heads {
+	return heads{nodes: nodes, arrows: arrows}
 }
 
 func (h heads) readHeads(target target) []position {
@@ -35,7 +35,7 @@ func (h heads) addHead(target target, new head) {
 	if !target.hasFirstHead() {
 
 		target.setFirstHead(new)
-		h.nodes.update(target.toVertex())
+		h.nodes.update(target.toNode())
 	} else {
 
 		first := target.getFirstHead(h.arrows)
@@ -74,7 +74,7 @@ func (h heads) removeHead(target target, removed head) {
 		} else if first.isAlone() {
 			target.deleteFirstHead()
 		}
-		h.nodes.update(target.toVertex())
+		h.nodes.update(target.toNode())
 		return
 	}
 

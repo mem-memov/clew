@@ -20,20 +20,20 @@ func (n nodes) produceHole(node node) {
 
 func (n nodes) create() node {
 
-	var vertex node
+	var node node
 	if n.holes.exist() {
-		vertex = newNode(n.holes.consumeHole(), n.lastNode)
+		node = newNode(n.holes.consumeHole(), n.lastNode)
 	} else {
-		vertex = newNode(n.entries.next(), n.lastNode)
+		node = newNode(n.entries.next(), n.lastNode)
 	}
 
-	n.lastNode = vertex.getPosition()
+	n.lastNode = node.getPosition()
 
-	return vertex
+	return node
 }
 
 func (n nodes) read(position position) node {
-	return newVertexWithEntry(position, n.entries.read(position))
+	return newNodeWithEntry(position, n.entries.read(position))
 }
 
 func (n nodes) update(node node) {

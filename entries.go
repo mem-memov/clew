@@ -1,27 +1,27 @@
 package klubok
 
 type entries struct {
-	persister persister
+	storage storage
 }
 
-func newEntries(persister persister) entries {
+func newEntries(storage storage) entries {
 	return entries{
-		persister: persister,
+		storage: storage,
 	}
 }
 
 func (e entries) next() position {
-	return newPosition(e.persister.next())
+	return newPosition(e.storage.next())
 }
 
 func (e entries) read(position position) entry {
-	return newEntry(e.persister.read(position.toInteger()))
+	return newEntry(e.storage.read(position.toInteger()))
 }
 
 func (e entries) update(position position, entry entry) {
-	e.persister.update(position.toInteger(), entry.toArray())
+	e.storage.update(position.toInteger(), entry.toArray())
 }
 
 func (e entries) append(entry entry) {
-	e.persister.append(entry.toArray())
+	e.storage.append(entry.toArray())
 }

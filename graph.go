@@ -1,11 +1,11 @@
 package klubok
 
 type Graph struct {
-	biloops biloops
+	mixes mixes
 }
 
-func NewGraph(persister persister) *Graph {
-	entries := newEntries(persister)
+func NewGraph(storage storage) *Graph {
+	entries := newEntries(storage)
 	entries.append(newVoidEntry())
 	holes := newHoles(entries, void)
 	nodes := newNodes(entries, holes, void)
@@ -14,7 +14,7 @@ func NewGraph(persister persister) *Graph {
 	tails := newTails(nodes, arrows)
 
 	return &Graph{
-		biloops: newBiloops(
+		mixes: newMixes(
 			nodes,
 			arrows,
 			heads,
@@ -24,11 +24,11 @@ func NewGraph(persister persister) *Graph {
 }
 
 func (g *Graph) Create() uint {
-	return g.biloops.create().getPosition().toInteger()
+	return g.mixes.create().getPosition().toInteger()
 }
 
 func (g *Graph) ReadSources(target uint) []uint {
-	positions := g.biloops.read(position(target)).readSources()
+	positions := g.mixes.read(position(target)).readSources()
 
 	heads := make([]uint, len(positions))
 	for i, position := range positions {
@@ -39,7 +39,7 @@ func (g *Graph) ReadSources(target uint) []uint {
 }
 
 func (g *Graph) ReadTargets(source uint) []uint {
-	positions := g.biloops.read(position(source)).readTargets()
+	positions := g.mixes.read(position(source)).readTargets()
 
 	tails := make([]uint, len(positions))
 	for i, position := range positions {
@@ -50,13 +50,13 @@ func (g *Graph) ReadTargets(source uint) []uint {
 }
 
 func (g *Graph) Connect(source uint, target uint) {
-	g.biloops.read(position(source)).addTarget(position(target))
+	g.mixes.read(position(source)).addTarget(position(target))
 }
 
 func (g *Graph) Disconnect(source uint, target uint) {
-	g.biloops.read(position(source)).removeTarget(position(target))
+	g.mixes.read(position(source)).removeTarget(position(target))
 }
 
 func (g *Graph) Delete(source uint) {
-	g.biloops.read(position(source)).delete()
+	g.mixes.read(position(source)).delete()
 }

@@ -5,8 +5,8 @@ type tails struct {
 	arrows arrows
 }
 
-func newTails(vertices nodes, arrows arrows) tails {
-	return tails{nodes: vertices, arrows: arrows}
+func newTails(nodes nodes, arrows arrows) tails {
+	return tails{nodes: nodes, arrows: arrows}
 }
 
 func (t tails) readTails(source source) []position {
@@ -35,7 +35,7 @@ func (t tails) addTail(source source, new tail) {
 	if !source.hasFirstTail() {
 
 		source.setFirstTail(new)
-		t.nodes.update(source.toVertex())
+		t.nodes.update(source.toNode())
 	} else {
 
 		first := source.getFirstTail(t.arrows)
@@ -74,7 +74,7 @@ func (t tails) removeTail(source source, removed tail) {
 		} else if first.isAlone() {
 			source.deleteFirstTail()
 		}
-		t.nodes.update(source.toVertex())
+		t.nodes.update(source.toNode())
 		return
 	}
 

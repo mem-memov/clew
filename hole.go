@@ -11,7 +11,7 @@ type hole struct {
 
 func newHole(position position, previous position) hole {
 	entry := newVoidEntry()
-	entry[previousHolePosition] = position
+	entry[previousHolePosition] = previous
 	return hole{position: position, entry: newVoidEntry()}
 }
 

@@ -26,7 +26,7 @@ func newNode(new position, previous position) node {
 	return node{position: new, entry: entry}
 }
 
-func newVertexWithEntry(position position, entry entry) node {
+func newNodeWithEntry(position position, entry entry) node {
 	return node{position: position, entry: entry}
 }
 

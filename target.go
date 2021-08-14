@@ -22,6 +22,6 @@ func (t target) deleteFirstHead() {
 	t.entry[firstHeadPosition] = void
 }
 
-func (t target) toVertex() node {
+func (t target) toNode() node {
 	return node(t)
 }

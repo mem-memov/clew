@@ -7,11 +7,11 @@ func (t tail) isSame(other tail) bool {
 }
 
 func (t tail) hasSource(source source) bool {
-	return t.entry[sourcePosition] == source.toVertex().getPosition()
+	return t.entry[sourcePosition] == source.toNode().getPosition()
 }
 
 func (t tail) setSource(source source) {
-	t.entry[sourcePosition] = source.toVertex().getPosition()
+	t.entry[sourcePosition] = source.toNode().getPosition()
 }
 
 func (t tail) hasNext() bool {

@@ -7,15 +7,15 @@ func (h head) isSame(other head) bool {
 }
 
 func (h head) hasTarget(target target) bool {
-	return h.entry[targetPosition] == target.toVertex().getPosition()
+	return h.entry[targetPosition] == target.toNode().getPosition()
 }
 
 func (h head) setTarget(target target) {
-	h.entry[targetPosition] = target.toVertex().getPosition()
+	h.entry[targetPosition] = target.toNode().getPosition()
 }
 
-func (h head) getTarget(vertices nodes) target {
-	return vertices.read(h.entry[targetPosition]).toTarget()
+func (h head) getTarget(nodes nodes) target {
+	return nodes.read(h.entry[targetPosition]).toTarget()
 }
 
 func (h head) hasPrevious() bool {

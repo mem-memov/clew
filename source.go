@@ -22,6 +22,6 @@ func (s source) deleteFirstTail() {
 	s.entry[firstTailPosition] = void
 }
 
-func (s source) toVertex() node {
+func (s source) toNode() node {
 	return node(s)
 }
