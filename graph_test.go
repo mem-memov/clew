@@ -5,25 +5,63 @@ import (
 	"testing"
 )
 
-func TestGraph_oneNode(t *testing.T) {
-	g, _ := NewGraph(NewSliceStorage())
+func TestGraph_NewGraph(t *testing.T) {
+	s := NewSliceStorage()
+	_, err := NewGraph(s)
 
-	a, _ := g.Create()
-	if a != uint(1) {
-		t.Errorf("want %v, got %v", uint(1), a)
+	if err != nil {
+		t.Fail()
 	}
 
-	aHeads, _ := g.ReadTargets(a)
-	if !reflect.DeepEqual([]uint{}, aHeads) {
-		t.Errorf("want %v, got %v", []uint{}, aHeads)
+	if len(s.entries) != 1 {
+		t.Fail()
 	}
 
-	aTails, _ := g.ReadSources(a)
-	if !reflect.DeepEqual([]uint{}, aTails) {
-		t.Errorf("want %v, got %v", []uint{}, aTails)
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+	}) {
+		t.Fail()
+	}
+}
+
+func TestGraph_Create(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	id, err := g.Create()
+
+	if err != nil {
+		t.Fail()
 	}
 
-	_ = g.Delete(a)
+	if id != uint(1) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+	}) {
+		t.Fail()
+	}
+}
+
+func TestGraph_Create3(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	g.Create()
+	g.Create()
+	g.Create()
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{2, 1, 0, 0, 0, 0},
+		{3, 2, 0, 0, 0, 0},
+	}) {
+		t.Fail()
+	}
 }
 
 func TestGraph(t *testing.T) {
