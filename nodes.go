@@ -16,8 +16,8 @@ func newNodes(entries *entries, holes *holes, lastNode position) *nodes {
 	}
 }
 
-func (n *nodes) produceHole(node node) {
-	n.holes.produceHole(node.getPosition())
+func (n *nodes) produceHole(node node) error {
+	return n.holes.produceHole(node.getPosition())
 }
 
 func (n *nodes) create() (node, error) {
@@ -40,14 +40,14 @@ func (n *nodes) create() (node, error) {
 		return node, nil
 	}
 
-	position, err := n.entries.next()
+	position, err := n.entries.create()
 	if err != nil {
 		return node{}, err
 	}
 
 	node := newNode(position, n.lastNode)
 
-	err = node.append(n.entries)
+	err = node.update(n.entries)
 	if err != nil {
 		return node, err
 	}

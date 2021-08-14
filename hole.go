@@ -27,6 +27,6 @@ func (h hole) getPreviousHolePosition() position {
 	return h.entry[previousHolePosition]
 }
 
-func (h hole) update(entries *entries) {
-	entries.update(h.position, h.entry)
+func (h hole) update(entries *entries) error {
+	return entries.update(h.position, h.entry)
 }

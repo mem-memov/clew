@@ -107,7 +107,11 @@ func (h *heads) removeHead(target target, removed head) error {
 				return err
 			}
 
-			next = previous.bindNext(next, h.arrows)
+			next, err = previous.bindNext(next, h.arrows)
+			if err != nil {
+				return err
+			}
+
 			target = target.setFirstHead(next)
 		} else if first.isPaired() {
 			second, err := first.getNext(h.arrows)
@@ -141,7 +145,11 @@ func (h *heads) removeHead(target target, removed head) error {
 				return err
 			}
 
-			previous.bindNext(next, h.arrows)
+			_, err = previous.bindNext(next, h.arrows)
+			if err != nil {
+				return err
+			}
+
 			return nil
 		}
 		previous = current
@@ -160,7 +168,10 @@ func (h *heads) deleteTarget(target target) error {
 
 	next := first
 	next.toTail()
-	h.arrows.produceHole(next.toArrow())
+	err = h.arrows.produceHole(next.toArrow())
+	if err != nil {
+		return err
+	}
 
 	for {
 		next, err = next.getNext(h.arrows)
@@ -171,6 +182,10 @@ func (h *heads) deleteTarget(target target) error {
 		if next.isSame(first) {
 			return nil
 		}
-		h.arrows.produceHole(next.toArrow())
+
+		err = h.arrows.produceHole(next.toArrow())
+		if err != nil {
+			return err
+		}
 	}
 }

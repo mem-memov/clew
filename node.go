@@ -49,7 +49,3 @@ func (n node) toTarget() target {
 func (n node) update(entries *entries) error {
 	return entries.update(n.position, n.entry)
 }
-
-func (n node) append(entries *entries) error {
-	return entries.append(n.entry)
-}

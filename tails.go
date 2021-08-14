@@ -170,7 +170,10 @@ func (t *tails) deleteSource(source source) error {
 	}
 
 	next := first
-	t.arrows.produceHole(next.toArrow())
+	err = t.arrows.produceHole(next.toArrow())
+	if err != nil {
+		return err
+	}
 
 	for {
 		next, err = next.getNext(t.arrows)
@@ -182,6 +185,9 @@ func (t *tails) deleteSource(source source) error {
 			return nil
 		}
 
-		t.arrows.produceHole(next.toArrow())
+		err = t.arrows.produceHole(next.toArrow())
+		if err != nil {
+			return err
+		}
 	}
 }

@@ -2,7 +2,6 @@ package clew
 
 type entry [6]position
 
-
 func newVoidEntry() entry {
 	return entry{void, void, void, void, void, void}
 }

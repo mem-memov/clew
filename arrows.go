@@ -12,8 +12,8 @@ func newArrows(entries *entries, holes *holes) *arrows {
 	}
 }
 
-func (a *arrows) produceHole(arrow arrow) {
-	a.holes.produceHole(arrow.getPosition())
+func (a *arrows) produceHole(arrow arrow) error {
+	return a.holes.produceHole(arrow.getPosition())
 }
 
 func (a *arrows) create(source source, target target) (arrow, error) {
@@ -34,14 +34,14 @@ func (a *arrows) create(source source, target target) (arrow, error) {
 		return arrow, nil
 	}
 
-	position, err := a.entries.next()
+	position, err := a.entries.create()
 	if err != nil {
 		return arrow{}, err
 	}
 
 	arrow := newArrow(position, source, target)
 
-	err = arrow.append(a.entries)
+	err = arrow.update(a.entries)
 	if err != nil {
 		return arrow, err
 	}

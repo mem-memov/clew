@@ -80,12 +80,21 @@ func (h head) isAlone() bool {
 	return h.entry[previousHeadPosition] == void && h.entry[nextHeadPosition] == void
 }
 
-func (h head) bindNext(next head, arrows *arrows) head {
+func (h head) bindNext(next head, arrows *arrows) (head, error) {
 	current := h.setNext(next)
 	next = next.setPrevious(current)
-	arrows.update(current.toArrow())
-	arrows.update(next.toArrow())
-	return next
+
+	err := arrows.update(current.toArrow())
+	if err != nil {
+		return head{}, err
+	}
+
+	err = arrows.update(next.toArrow())
+	if err != nil {
+		return head{}, err
+	}
+
+	return next, nil
 }
 
 func (h head) toArrow() arrow {

@@ -72,7 +72,7 @@ func (m mix) removeTarget(position position) error {
 		return nil
 	}
 
-	node, err  := m.nodes.read(position)
+	node, err := m.nodes.read(position)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,10 @@ func (m mix) removeTarget(position position) error {
 			return err
 		}
 
-		m.arrows.produceHole(tail.toArrow())
+		err = m.arrows.produceHole(tail.toArrow())
+		if err != nil {
+			return err
+		}
 	}
 
 	for {
@@ -128,7 +131,10 @@ func (m mix) removeTarget(position position) error {
 			return err
 		}
 
-		m.arrows.produceHole(tail.toArrow())
+		err = m.arrows.produceHole(tail.toArrow())
+		if err != nil {
+			return err
+		}
 	}
 }
 
@@ -143,7 +149,10 @@ func (m mix) delete() error {
 		return err
 	}
 
-	m.nodes.produceHole(m.node)
+	err = m.nodes.produceHole(m.node)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

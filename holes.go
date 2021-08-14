@@ -26,8 +26,15 @@ func (h *holes) consumeHole() (position, error) {
 	return lastHole.getPosition(), nil
 }
 
-func (h *holes) produceHole(position position) {
+func (h *holes) produceHole(position position) error {
 	newHole := newHole(position, h.lastHolePosition)
-	newHole.update(h.entries)
+
+	err := newHole.update(h.entries)
+	if err != nil {
+		return err
+	}
+
 	h.lastHolePosition = position
+
+	return nil
 }

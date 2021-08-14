@@ -8,8 +8,9 @@ func NewSliceStorage() *sliceStorage {
 	return &sliceStorage{entries: [][6]uint{}}
 }
 
-func (s *sliceStorage) next() (uint, error) {
-	return uint(len(s.entries)), nil
+func (s *sliceStorage) create() (uint, error) {
+	s.entries = append(s.entries, [6]uint{})
+	return uint(len(s.entries) - 1), nil
 }
 
 func (s *sliceStorage) read(position uint) ([6]uint, error) {
@@ -18,10 +19,5 @@ func (s *sliceStorage) read(position uint) ([6]uint, error) {
 
 func (s *sliceStorage) update(position uint, entry [6]uint) error {
 	s.entries[int(position)] = entry
-	return nil
-}
-
-func (s *sliceStorage) append(entry [6]uint) error {
-	s.entries = append(s.entries, entry)
 	return nil
 }

@@ -10,8 +10,8 @@ func newEntries(storage storage) *entries {
 	}
 }
 
-func (e *entries) next() (position, error) {
-	next, err := e.storage.next()
+func (e *entries) create() (position, error) {
+	next, err := e.storage.create()
 	if err != nil {
 		return void, err
 	}
@@ -28,8 +28,4 @@ func (e *entries) read(position position) (entry, error) {
 
 func (e *entries) update(position position, entry entry) error {
 	return e.storage.update(position.toInteger(), entry.toArray())
-}
-
-func (e *entries) append(entry entry) error {
-	return e.storage.append(entry.toArray())
 }

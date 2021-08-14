@@ -44,7 +44,3 @@ func (a arrow) toHead() head {
 func (a arrow) update(entries *entries) error {
 	return entries.update(a.position, a.entry)
 }
-
-func (a arrow) append(entries *entries) error {
-	return entries.append(a.entry)
-}

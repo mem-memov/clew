@@ -1,10 +1,10 @@
 package clew
 
 type mixes struct {
-	nodes        *nodes
-	arrows       *arrows
-	heads *heads
-	tails *tails
+	nodes  *nodes
+	arrows *arrows
+	heads  *heads
+	tails  *tails
 }
 
 func newMixes(nodes *nodes, arrows *arrows, heads *heads, tails *tails) *mixes {
