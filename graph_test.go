@@ -42,37 +42,37 @@ func TestGraph(t *testing.T) {
 		t.Errorf("want %v, got %v", wantHeads, aHeads)
 	}
 
-	//wantHeads, aHeads = []uint{}, g.ReadSources(a)
-	//if !reflect.DeepEqual(wantHeads, aHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, aHeads)
-	//}
-	//
-	//wantHeads, bHeads := []uint{}, g.ReadTargets(b)
-	//if !reflect.DeepEqual(wantHeads, bHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, bHeads)
-	//}
-	//
-	//wantHeads, bHeads = []uint{1}, g.ReadSources(b)
-	//if !reflect.DeepEqual(wantHeads, bHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, bHeads)
-	//}
-	//
-	//wantHeads, cHeads := []uint{}, g.ReadTargets(c)
-	//if !reflect.DeepEqual(wantHeads, cHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, cHeads)
-	//}
-	//
-	//wantHeads, cHeads = []uint{1}, g.ReadSources(c)
-	//if !reflect.DeepEqual(wantHeads, cHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, cHeads)
-	//}
+	wantHeads, aHeads = []uint{}, g.ReadSources(a)
+	if !reflect.DeepEqual(wantHeads, aHeads) {
+		t.Errorf("want %v, got %v", wantHeads, aHeads)
+	}
+
+	wantHeads, bHeads := []uint{}, g.ReadTargets(b)
+	if !reflect.DeepEqual(wantHeads, bHeads) {
+		t.Errorf("want %v, got %v", wantHeads, bHeads)
+	}
+
+	wantHeads, bHeads = []uint{1}, g.ReadSources(b)
+	if !reflect.DeepEqual(wantHeads, bHeads) {
+		t.Errorf("want %v, got %v", wantHeads, bHeads)
+	}
+
+	wantHeads, cHeads := []uint{}, g.ReadTargets(c)
+	if !reflect.DeepEqual(wantHeads, cHeads) {
+		t.Errorf("want %v, got %v", wantHeads, cHeads)
+	}
+
+	wantHeads, cHeads = []uint{1}, g.ReadSources(c)
+	if !reflect.DeepEqual(wantHeads, cHeads) {
+		t.Errorf("want %v, got %v", wantHeads, cHeads)
+	}
 
 	// b c
 
-	//g.Delete(a)
-	//
-	//wantHeads, cHeads = []uint{}, g.ReadNegative(c)
-	//if !reflect.DeepEqual(wantHeads, cHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, cHeads)
-	//}
+	g.Delete(a)
+
+	wantHeads, cHeads = []uint{}, g.ReadSources(c)
+	if !reflect.DeepEqual(wantHeads, cHeads) {
+		t.Errorf("want %v, got %v", wantHeads, cHeads)
+	}
 }

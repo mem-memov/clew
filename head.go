@@ -14,6 +14,10 @@ func (h head) getTarget(nodes *nodes) target {
 	return nodes.read(h.entry[targetPosition]).toTarget()
 }
 
+func (h head) getTargetPosition() position {
+	return h.entry[targetPosition]
+}
+
 func (h head) hasPrevious() bool {
 	return h.entry[previousHeadPosition] != void
 }

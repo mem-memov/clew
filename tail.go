@@ -10,6 +10,10 @@ func (t tail) hasSource(source source) bool {
 	return t.entry[sourcePosition] == source.toNode().getPosition()
 }
 
+func (t tail) getSourcePosition() position {
+	return t.entry[sourcePosition]
+}
+
 func (t tail) hasNext() bool {
 	return t.entry[nextTailPosition] != void
 }

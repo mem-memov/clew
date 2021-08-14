@@ -19,7 +19,7 @@ func (h *heads) readHeads(target target) []position {
 	first := target.getFirstHead(h.arrows)
 	next := first
 
-	heads = append(heads, next.toArrow().getPosition())
+	heads = append(heads, next.toTail().getSourcePosition())
 
 	for {
 		if !next.hasNext() {
@@ -29,11 +29,11 @@ func (h *heads) readHeads(target target) []position {
 		if next.isSame(first) {
 			return heads
 		}
-		heads = append(heads, next.toArrow().getPosition())
+		heads = append(heads, next.toTail().getSourcePosition())
 	}
 }
 
-func (h *heads) addHead(target target, new head) {
+func (h *heads) addHead(target target, new head) arrow {
 
 	if !target.hasFirstHead() {
 
@@ -53,13 +53,14 @@ func (h *heads) addHead(target target, new head) {
 		} else {
 
 			first = first.setPrevious(new)
+			first = first.setNext(new)
 			new = new.setPrevious(first)
 			new = new.setNext(first)
 		}
 		h.arrows.update(first.toArrow())
 	}
 
-	h.arrows.update(new.toArrow())
+	return new.toArrow()
 }
 
 func (h *heads) removeHead(target target, removed head) {

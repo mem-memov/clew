@@ -19,7 +19,7 @@ func (t *tails) readTails(source source) []position {
 	first := source.getFirstTail(t.arrows)
 	next := first
 
-	tails = append(tails, next.toArrow().getPosition())
+	tails = append(tails, next.toHead().getTargetPosition())
 
 	for {
 		if !next.hasNext() {
@@ -29,11 +29,11 @@ func (t *tails) readTails(source source) []position {
 		if next.isSame(first) {
 			return tails
 		}
-		tails = append(tails, next.toArrow().getPosition())
+		tails = append(tails, next.toHead().getTargetPosition())
 	}
 }
 
-func (t *tails) addTail(source source, new tail) {
+func (t *tails) addTail(source source, new tail) arrow {
 
 	if !source.hasFirstTail() {
 
@@ -53,13 +53,14 @@ func (t *tails) addTail(source source, new tail) {
 		} else {
 
 			first = first.setPrevious(new)
+			first = first.setNext(new)
 			new = new.setPrevious(first)
 			new = new.setNext(first)
 		}
 		t.arrows.update(first.toArrow())
 	}
 
-	t.arrows.update(new.toArrow())
+	return new.toArrow()
 }
 
 func (t *tails) removeTail(source source, removed tail) {
