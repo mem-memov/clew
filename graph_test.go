@@ -2,6 +2,7 @@ package klubok
 
 import (
 	//"reflect"
+	"reflect"
 	"testing"
 )
 
@@ -17,31 +18,31 @@ func TestGraph(t *testing.T) {
 
 	// a b
 
-	//want, b := uint(2), g.Create()
-	//if b != want {
-	//	t.Errorf("want %v, got %v", want, b)
-	//}
-	//
-	//// a b a->b
-	//
-	//g.Connect(a, b)
-	//
-	//// a b a->b c
-	//
-	//want, c := uint(4), g.Create()
-	//if c != want {
-	//	t.Errorf("want %v, got %v", want, c)
-	//}
-	//
-	//// a b a->b c a->c
-	//
-	//g.Connect(a, c)
-	//
-	//wantHeads, aHeads := []uint{2, 4}, g.ReadTargets(a)
-	//if !reflect.DeepEqual(wantHeads, aHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, aHeads)
-	//}
-	//
+	want, b := uint(2), g.Create()
+	if b != want {
+		t.Errorf("want %v, got %v", want, b)
+	}
+
+	// a b a->b
+
+	g.Connect(a, b)
+
+	// a b a->b c
+
+	want, c := uint(4), g.Create()
+	if c != want {
+		t.Errorf("want %v, got %v", want, c)
+	}
+
+	// a b a->b c a->c
+
+	g.Connect(a, c)
+
+	wantHeads, aHeads := []uint{2, 4}, g.ReadTargets(a)
+	if !reflect.DeepEqual(wantHeads, aHeads) {
+		t.Errorf("want %v, got %v", wantHeads, aHeads)
+	}
+
 	//wantHeads, aHeads = []uint{}, g.ReadSources(a)
 	//if !reflect.DeepEqual(wantHeads, aHeads) {
 	//	t.Errorf("want %v, got %v", wantHeads, aHeads)

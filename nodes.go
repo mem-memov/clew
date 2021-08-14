@@ -28,12 +28,17 @@ func (n nodes) create() node {
 	}
 
 	n.lastNode = node.getPosition()
+	n.append(node)
 
 	return node
 }
 
 func (n nodes) read(position position) node {
 	return newNodeWithEntry(position, n.entries.read(position))
+}
+
+func (n nodes) append(node node) {
+	node.append(n.entries)
 }
 
 func (n nodes) update(node node) {

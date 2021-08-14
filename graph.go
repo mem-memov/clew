@@ -6,6 +6,7 @@ type Graph struct {
 
 func NewGraph(storage storage) *Graph {
 	entries := newEntries(storage)
+	// a voidEntry which makes 0 to a special value, that means no position has been set, it may contain graph metadata
 	entries.append(newVoidEntry())
 	holes := newHoles(entries, void)
 	nodes := newNodes(entries, holes, void)

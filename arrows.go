@@ -12,30 +12,32 @@ func newArrows(entries entries, holes holes) arrows {
 	}
 }
 
-func (e arrows) produceHole(arrow arrow) {
-	e.holes.produceHole(arrow.getPosition())
+func (a arrows) produceHole(arrow arrow) {
+	a.holes.produceHole(arrow.getPosition())
 }
 
-func (e arrows) create() arrow {
+func (a arrows) create() arrow {
 
 	var arrow arrow
-	if e.holes.exist() {
-		arrow = newArrow(e.holes.consumeHole())
+	if a.holes.exist() {
+		arrow = newArrow(a.holes.consumeHole())
 	} else {
-		arrow = newArrow(e.entries.next())
+		arrow = newArrow(a.entries.next())
 	}
+
+	arrow.append(a.entries)
 
 	return arrow
 }
 
-func (e arrows) read(position position) arrow {
-	return existingArrow(position, e.entries.read(position))
+func (a arrows) read(position position) arrow {
+	return existingArrow(position, a.entries.read(position))
 }
 
-func (e arrows) append(arrow arrow) {
-	arrow.append(e.entries)
+func (a arrows) append(arrow arrow) {
+	arrow.append(a.entries)
 }
 
-func (e arrows) update(arrow arrow) {
-	arrow.update(e.entries)
+func (a arrows) update(arrow arrow) {
+	arrow.update(a.entries)
 }
