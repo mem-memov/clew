@@ -64,6 +64,92 @@ func TestGraph_Create3(t *testing.T) {
 	}
 }
 
+func TestGraph_Connect(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{2, 1, 0, 0, 0, 0},
+	}
+
+	err := g.Connect(1, 2)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 3},
+		{2, 1, 0, 3, 0, 0},
+		{2, 0, 0, 1, 0, 0},
+	}) {
+		t.Error(s)
+	}
+}
+
+func TestGraph_Disconnect(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 3},
+		{2, 1, 0, 3, 0, 0},
+		{2, 0, 0, 1, 0, 0},
+	}
+
+	err := g.Disconnect(1, 2)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{2, 1, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0},
+	}) {
+		t.Error(s)
+	}
+}
+
+func TestGraph_ConnectMutually(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{2, 1, 0, 0, 0, 0},
+	}
+
+	err := g.Connect(1, 2)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	err = g.Connect(2, 1)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 4, 0, 3}, // 1 a
+		{2, 1, 0, 3, 0, 4}, // 2 b
+		{2, 0, 0, 1, 0, 0}, // 3 a -> b
+		{1, 0, 0, 2, 0, 0}, // 4 b -> a
+	}) {
+		t.Error(s)
+	}
+}
+
 func TestGraph(t *testing.T) {
 	g, _ := NewGraph(NewSliceStorage())
 
