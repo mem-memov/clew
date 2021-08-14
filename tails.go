@@ -42,7 +42,7 @@ func (t *tails) readTails(source source) ([]position, error) {
 	}
 }
 
-func (t *tails) addTail(source source, new tail) (arrow, error) {
+func (t *tails) addTail(source source, new tail) (source, arrow, error) {
 
 	if !source.hasFirstTail() {
 
@@ -50,19 +50,19 @@ func (t *tails) addTail(source source, new tail) (arrow, error) {
 
 		err := t.nodes.update(source.toNode())
 		if err != nil {
-			return arrow{}, err
+			return source, arrow{}, err
 		}
 	} else {
 
 		first, err := source.getFirstTail(t.arrows)
 		if err != nil {
-			return arrow{}, err
+			return source, arrow{}, err
 		}
 
 		if first.hasPrevious() {
 			last, err := first.getPrevious(t.arrows)
 			if err != nil {
-				return arrow{}, err
+				return source, arrow{}, err
 			}
 
 			last = last.setNext(new)
@@ -72,7 +72,7 @@ func (t *tails) addTail(source source, new tail) (arrow, error) {
 
 			err = t.arrows.update(last.toArrow())
 			if err != nil {
-				return arrow{}, err
+				return source, arrow{}, err
 			}
 		} else {
 			first = first.setPrevious(new)
@@ -83,11 +83,11 @@ func (t *tails) addTail(source source, new tail) (arrow, error) {
 
 		err = t.arrows.update(first.toArrow())
 		if err != nil {
-			return arrow{}, err
+			return source, arrow{}, err
 		}
 	}
 
-	return new.toArrow(), nil
+	return source, new.toArrow(), nil
 }
 
 func (t *tails) removeTail(source source, removed tail) error {

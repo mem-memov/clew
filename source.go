@@ -32,3 +32,7 @@ func (s source) deleteFirstTail() source {
 func (s source) toNode() node {
 	return node(s)
 }
+
+func (s source) toTarget() target {
+	return s.toNode().toTarget()
+}

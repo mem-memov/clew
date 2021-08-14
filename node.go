@@ -34,6 +34,10 @@ func (n node) isValid() bool {
 	return n.entry[identifierPosition] == n.position
 }
 
+func (n node) isSame(node node) bool {
+	return n.entry[identifierPosition] == node.getPosition()
+}
+
 func (n node) getPosition() position {
 	return n.entry[identifierPosition]
 }

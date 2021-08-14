@@ -51,9 +51,13 @@ func (m mix) addTarget(position position) error {
 		return err
 	}
 
-	arrow, err = m.tails.addTail(source, arrow.toTail())
+	source, arrow, err = m.tails.addTail(source, arrow.toTail())
 	if err != nil {
 		return err
+	}
+
+	if source.toNode().isSame(target.toNode()) {
+		target = source.toTarget()
 	}
 
 	arrow, err = m.heads.addHead(target, arrow.toHead())
