@@ -63,7 +63,7 @@ func (t tails) removeTail(source source, removed tail) {
 
 	first := source.getFirstTail(t.arrows)
 	if first.isSame(removed) {
-		if first.isSurrounded()  {
+		if first.isSurrounded() {
 			next := first.getPrevious(t.arrows).bindNext(first.getNext(t.arrows), t.arrows)
 			source.setFirstTail(next)
 		} else if first.isPaired() {
@@ -90,5 +90,23 @@ func (t tails) removeTail(source source, removed tail) {
 			return
 		}
 		previous = current
+	}
+}
+
+func (t tails) deleteSource(source source) {
+	if !source.hasFirstTail() {
+		return
+	}
+
+	first := source.getFirstTail(t.arrows)
+	next := first
+	t.arrows.produceHole(next.toArrow())
+
+	for {
+		next = next.getNext(t.arrows)
+		if next.isSame(first) {
+			return
+		}
+		t.arrows.produceHole(next.toArrow())
 	}
 }

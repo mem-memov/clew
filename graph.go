@@ -53,10 +53,10 @@ func (g *Graph) Connect(source uint, target uint) {
 	g.biloops.read(position(source)).addTarget(position(target))
 }
 
-func (g *Graph) Disconnect(tail uint, head uint) {
-	g.biloops.read(position(tail)).removeTarget(position(head))
+func (g *Graph) Disconnect(source uint, target uint) {
+	g.biloops.read(position(source)).removeTarget(position(target))
 }
 
-func (g *Graph) Delete(tail uint) {
-	g.biloops.read(position(tail)).delete()
+func (g *Graph) Delete(source uint) {
+	g.biloops.read(position(source)).delete()
 }

@@ -1,7 +1,7 @@
 package klubok
 
 type nodes struct {
-	entries    entries
+	entries  entries
 	holes    holes
 	lastNode position
 }

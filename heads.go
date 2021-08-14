@@ -63,7 +63,7 @@ func (h heads) removeHead(target target, removed head) {
 
 	first := target.getFirstHead(h.arrows)
 	if first.isSame(removed) {
-		if first.isSurrounded()  {
+		if first.isSurrounded() {
 			next := first.getPrevious(h.arrows).bindNext(first.getNext(h.arrows), h.arrows)
 			target.setFirstHead(next)
 		} else if first.isPaired() {
@@ -90,5 +90,23 @@ func (h heads) removeHead(target target, removed head) {
 			return
 		}
 		previous = current
+	}
+}
+
+func (h heads) deleteTarget(target target) {
+	if !target.hasFirstHead() {
+		return
+	}
+
+	first := target.getFirstHead(h.arrows)
+	next := first
+	h.arrows.produceHole(next.toArrow())
+
+	for {
+		next = next.getNext(h.arrows)
+		if next.isSame(first) {
+			return
+		}
+		h.arrows.produceHole(next.toArrow())
 	}
 }

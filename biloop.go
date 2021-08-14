@@ -79,5 +79,7 @@ func (b biloop) removeTarget(position position) {
 }
 
 func (b biloop) delete() {
-
+	b.tails.deleteSource(b.node.toSource())
+	b.heads.deleteTarget(b.node.toTarget())
+	b.nodes.produceHole(b.node)
 }
