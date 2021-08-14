@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 const (
 	targetPosition       position = 0

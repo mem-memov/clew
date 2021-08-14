@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type storage interface {
 	next() uint

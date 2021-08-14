@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 const (
 	previousHolePosition position = 0

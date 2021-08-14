@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type entries struct {
 	storage storage

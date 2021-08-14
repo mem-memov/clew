@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 import (
 	//"reflect"

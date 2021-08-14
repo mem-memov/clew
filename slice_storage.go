@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type sliceStorage struct {
 	entries [][6]uint

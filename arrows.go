@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type arrows struct {
 	entries entries
@@ -32,10 +32,6 @@ func (a arrows) create() arrow {
 
 func (a arrows) read(position position) arrow {
 	return existingArrow(position, a.entries.read(position))
-}
-
-func (a arrows) append(arrow arrow) {
-	arrow.append(a.entries)
 }
 
 func (a arrows) update(arrow arrow) {

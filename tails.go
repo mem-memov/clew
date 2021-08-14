@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type tails struct {
 	nodes  nodes

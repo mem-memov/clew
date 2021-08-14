@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type entry [6]position
 

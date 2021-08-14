@@ -1,4 +1,4 @@
-package klubok
+package clew
 
 type holes struct {
 	lastHolePosition position
