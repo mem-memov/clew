@@ -7,7 +7,7 @@ type Graph struct {
 func NewGraph(storage storage) (*Graph, error) {
 	entries := newEntries(storage)
 	// a voidEntry which makes 0 to a special value, that means no position has been set, it may contain graph metadata
-	err := entries.append(newVoidEntry())
+	_, err := entries.create()
 	if err != nil {
 		return nil, err
 	}
