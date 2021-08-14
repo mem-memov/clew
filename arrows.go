@@ -16,24 +16,48 @@ func (a *arrows) produceHole(arrow arrow) {
 	a.holes.produceHole(arrow.getPosition())
 }
 
-func (a *arrows) create(source source, target target) arrow {
+func (a *arrows) create(source source, target target) (arrow, error) {
 
-	var arrow arrow
 	if a.holes.exist() {
-		arrow = newArrow(a.holes.consumeHole(), source, target)
-		arrow.update(a.entries)
-	} else {
-		arrow = newArrow(a.entries.next(), source, target)
-		arrow.append(a.entries)
+		position, err := a.holes.consumeHole()
+		if err != nil {
+			return arrow{}, err
+		}
+
+		arrow := newArrow(position, source, target)
+
+		err = arrow.update(a.entries)
+		if err != nil {
+			return arrow, err
+		}
+
+		return arrow, nil
 	}
 
-	return arrow
+	position, err := a.entries.next()
+	if err != nil {
+		return arrow{}, err
+	}
+
+	arrow := newArrow(position, source, target)
+
+	err = arrow.append(a.entries)
+	if err != nil {
+		return arrow, err
+	}
+
+	return arrow, nil
 }
 
-func (a *arrows) read(position position) arrow {
-	return existingArrow(position, a.entries.read(position))
+func (a *arrows) read(position position) (arrow, error) {
+	entry, err := a.entries.read(position)
+	if err != nil {
+		return arrow{}, nil
+	}
+
+	return existingArrow(position, entry), nil
 }
 
-func (a *arrows) update(arrow arrow) {
-	arrow.update(a.entries)
+func (a *arrows) update(arrow arrow) error {
+	return arrow.update(a.entries)
 }

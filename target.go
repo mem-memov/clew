@@ -6,8 +6,13 @@ func (t target) hasFirstHead() bool {
 	return t.entry[firstHeadPosition] != void
 }
 
-func (t target) getFirstHead(arrows *arrows) head {
-	return arrows.read(t.entry[firstHeadPosition]).toHead()
+func (t target) getFirstHead(arrows *arrows) (head, error) {
+	node, err := arrows.read(t.entry[firstHeadPosition])
+	if err != nil {
+		return head{}, err
+	}
+
+	return node.toHead(), nil
 }
 
 func (t target) setFirstHead(arrowHead head) target {

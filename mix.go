@@ -16,72 +16,134 @@ func (m mix) getPosition() position {
 	return m.node.getPosition()
 }
 
-func (m mix) readSources() []position {
+func (m mix) readSources() ([]position, error) {
 	return m.heads.readHeads(m.node.toTarget())
 }
 
-func (m mix) readTargets() []position {
+func (m mix) readTargets() ([]position, error) {
 	return m.tails.readTails(m.node.toSource())
 }
 
-func (m mix) addTarget(position position) {
+func (m mix) addTarget(position position) error {
 
 	source := m.node.toSource()
-	target := m.nodes.read(position).toTarget()
 
-	for _, present := range m.tails.readTails(source) {
+	node, err := m.nodes.read(position)
+	if err != nil {
+		return err
+	}
+
+	target := node.toTarget()
+
+	tails, err := m.tails.readTails(source)
+	if err != nil {
+		return err
+	}
+
+	for _, present := range tails {
 		if present == position {
-			return
+			return nil
 		}
 	}
 
-	arrow := m.arrows.create(source, target)
+	arrow, err := m.arrows.create(source, target)
+	if err != nil {
+		return err
+	}
 
-	arrow = m.tails.addTail(source, arrow.toTail())
-	arrow = m.heads.addHead(target, arrow.toHead())
+	arrow, err = m.tails.addTail(source, arrow.toTail())
+	if err != nil {
+		return err
+	}
 
-	m.arrows.update(arrow)
+	arrow, err = m.heads.addHead(target, arrow.toHead())
+	if err != nil {
+		return err
+	}
+
+	return m.arrows.update(arrow)
 }
 
-func (m mix) removeTarget(position position) {
+func (m mix) removeTarget(position position) error {
 
 	source := m.node.toSource()
 
 	if !source.hasFirstTail() {
-		return
+		return nil
 	}
 
-	target := m.nodes.read(position).toTarget()
+	node, err  := m.nodes.read(position)
+	if err != nil {
+		return err
+	}
+
+	target := node.toTarget()
 
 	if !target.hasFirstHead() {
-		return
+		return nil
 	}
 
-	first := source.getFirstTail(m.arrows)
+	first, err := source.getFirstTail(m.arrows)
+	if err != nil {
+		return err
+	}
+
 	tail := first
 
 	if tail.toHead().hasTarget(target) {
-		m.heads.removeHead(target, tail.toHead())
-		m.tails.removeTail(source, tail)
+		err := m.heads.removeHead(target, tail.toHead())
+		if err != nil {
+			return err
+		}
+
+		err = m.tails.removeTail(source, tail)
+		if err != nil {
+			return err
+		}
+
 		m.arrows.produceHole(tail.toArrow())
 	}
 
 	for {
-		tail = tail.getNext(m.arrows)
-		if tail.isSame(first) {
-			return
+		tail, err = tail.getNext(m.arrows)
+		if err != nil {
+			return err
 		}
+
+		if tail.isSame(first) {
+			return nil
+		}
+
 		if !tail.toHead().hasTarget(target) {
 			continue
 		}
-		m.heads.removeHead(target, tail.toHead())
-		m.tails.removeTail(source, tail)
+
+		err := m.heads.removeHead(target, tail.toHead())
+		if err != nil {
+			return err
+		}
+
+		err = m.tails.removeTail(source, tail)
+		if err != nil {
+			return err
+		}
+
 		m.arrows.produceHole(tail.toArrow())
 	}
 }
 
-func (m mix) delete() {
-	m.tails.deleteSource(m.node.toSource())
-	m.heads.deleteTarget(m.node.toTarget())
+func (m mix) delete() error {
+	err := m.tails.deleteSource(m.node.toSource())
+	if err != nil {
+		return err
+	}
+
+	err = m.heads.deleteTarget(m.node.toTarget())
+	if err != nil {
+		return err
+	}
+
 	m.nodes.produceHole(m.node)
+
+	return nil
 }

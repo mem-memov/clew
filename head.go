@@ -10,8 +10,12 @@ func (h head) hasTarget(target target) bool {
 	return h.entry[targetPosition] == target.toNode().getPosition()
 }
 
-func (h head) getTarget(nodes *nodes) target {
-	return nodes.read(h.entry[targetPosition]).toTarget()
+func (h head) getTarget(nodes *nodes) (target, error) {
+	node, err := nodes.read(h.entry[targetPosition])
+	if err != nil {
+		return target{}, err
+	}
+	return node.toTarget(), nil
 }
 
 func (h head) getTargetPosition() position {
@@ -22,8 +26,13 @@ func (h head) hasPrevious() bool {
 	return h.entry[previousHeadPosition] != void
 }
 
-func (h head) getPrevious(arrows *arrows) head {
-	return arrows.read(h.entry[previousHeadPosition]).toHead()
+func (h head) getPrevious(arrows *arrows) (head, error) {
+	arrow, err := arrows.read(h.entry[previousHeadPosition])
+	if err != nil {
+		return head{}, err
+	}
+
+	return arrow.toHead(), nil
 }
 
 func (h head) setPrevious(head head) head {
@@ -40,8 +49,13 @@ func (h head) hasNext() bool {
 	return h.entry[nextHeadPosition] != void
 }
 
-func (h head) getNext(arrows *arrows) head {
-	return arrows.read(h.entry[nextHeadPosition]).toHead()
+func (h head) getNext(arrows *arrows) (head, error) {
+	arrow, err := arrows.read(h.entry[nextHeadPosition])
+	if err != nil {
+		return head{}, err
+	}
+
+	return arrow.toHead(), nil
 }
 
 func (h head) setNext(head head) head {

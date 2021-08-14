@@ -4,10 +4,13 @@ type Graph struct {
 	mixes *mixes
 }
 
-func NewGraph(storage storage) *Graph {
+func NewGraph(storage storage) (*Graph, error) {
 	entries := newEntries(storage)
 	// a voidEntry which makes 0 to a special value, that means no position has been set, it may contain graph metadata
-	entries.append(newVoidEntry())
+	err := entries.append(newVoidEntry())
+	if err != nil {
+		return nil, err
+	}
 	holes := newHoles(entries, void)
 	nodes := newNodes(entries, holes, void)
 	arrows := newArrows(entries, holes)
@@ -21,43 +24,94 @@ func NewGraph(storage storage) *Graph {
 			heads,
 			tails,
 		),
+	}, nil
+}
+
+func (g *Graph) Create() (uint, error) {
+	mix, err := g.mixes.create()
+	if err != nil {
+		return 0, err
 	}
+
+	return mix.getPosition().toInteger(), nil
 }
 
-func (g *Graph) Create() uint {
-	return g.mixes.create().getPosition().toInteger()
-}
+func (g *Graph) ReadSources(target uint) ([]uint, error) {
+	mix, err := g.mixes.read(position(target))
+	if err != nil {
+		return []uint{}, err
+	}
 
-func (g *Graph) ReadSources(target uint) []uint {
-	positions := g.mixes.read(position(target)).readSources()
+	positions, err := mix.readSources()
+	if err != nil {
+		return []uint{}, err
+	}
 
 	heads := make([]uint, len(positions))
 	for i, position := range positions {
 		heads[i] = position.toInteger()
 	}
 
-	return heads
+	return heads, nil
 }
 
-func (g *Graph) ReadTargets(source uint) []uint {
-	positions := g.mixes.read(position(source)).readTargets()
+func (g *Graph) ReadTargets(source uint) ([]uint, error) {
+	mix, err := g.mixes.read(position(source))
+	if err != nil {
+		return []uint{}, err
+	}
+
+	positions, err := mix.readTargets()
+	if err != nil {
+		return []uint{}, err
+	}
 
 	tails := make([]uint, len(positions))
 	for i, position := range positions {
 		tails[i] = position.toInteger()
 	}
 
-	return tails
+	return tails, nil
 }
 
-func (g *Graph) Connect(source uint, target uint) {
-	g.mixes.read(position(source)).addTarget(position(target))
+func (g *Graph) Connect(source uint, target uint) error {
+	mix, err := g.mixes.read(position(source))
+	if err != nil {
+		return err
+	}
+
+	err = mix.addTarget(position(target))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (g *Graph) Disconnect(source uint, target uint) {
-	g.mixes.read(position(source)).removeTarget(position(target))
+func (g *Graph) Disconnect(source uint, target uint) error {
+	mix, err := g.mixes.read(position(target))
+	if err != nil {
+		return err
+	}
+
+	err = mix.removeTarget(position(target))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (g *Graph) Delete(source uint) {
-	g.mixes.read(position(source)).delete()
+func (g *Graph) Delete(source uint) error {
+	mix, err := g.mixes.read(position(source))
+	if err != nil {
+		return err
+	}
+
+	err = mix.delete()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

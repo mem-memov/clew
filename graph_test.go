@@ -5,74 +5,96 @@ import (
 	"testing"
 )
 
+func TestGraph_oneNode(t *testing.T) {
+	g, _ := NewGraph(NewSliceStorage())
+
+	a, _ := g.Create()
+	if a != uint(1) {
+		t.Errorf("want %v, got %v", uint(1), a)
+	}
+
+	aHeads, _ := g.ReadTargets(a)
+	if !reflect.DeepEqual([]uint{}, aHeads) {
+		t.Errorf("want %v, got %v", []uint{}, aHeads)
+	}
+
+	aTails, _ := g.ReadSources(a)
+	if !reflect.DeepEqual([]uint{}, aTails) {
+		t.Errorf("want %v, got %v", []uint{}, aTails)
+	}
+
+	_ = g.Delete(a)
+}
+
 func TestGraph(t *testing.T) {
-	g := NewGraph(NewSliceStorage())
+	g, _ := NewGraph(NewSliceStorage())
 
 	// a
 
-	want, a := uint(1), g.Create()
-	if a != want {
-		t.Errorf("want %v, got %v", want, a)
+	a, _ := g.Create()
+	if a != uint(1) {
+		t.Errorf("want %v, got %v", uint(1), a)
 	}
 
 	// a b
 
-	want, b := uint(2), g.Create()
-	if b != want {
-		t.Errorf("want %v, got %v", want, b)
+	b, _ := g.Create()
+	if b != uint(2) {
+		t.Errorf("want %v, got %v", uint(2), b)
 	}
 
 	// a b a->b
 
-	g.Connect(a, b)
+	_ = g.Connect(a, b)
 
 	// a b a->b c
 
-	want, c := uint(4), g.Create()
-	if c != want {
-		t.Errorf("want %v, got %v", want, c)
+	c, _ := g.Create()
+	if c != uint(4) {
+		t.Errorf("want %v, got %v", uint(4), c)
 	}
 
 	// a b a->b c a->c
 
-	g.Connect(a, c)
+	_ = g.Connect(a, c)
 
-	wantHeads, aHeads := []uint{2, 4}, g.ReadTargets(a)
-	if !reflect.DeepEqual(wantHeads, aHeads) {
-		t.Errorf("want %v, got %v", wantHeads, aHeads)
+	aHeads, _ := g.ReadTargets(a)
+	if !reflect.DeepEqual([]uint{2, 4}, aHeads) {
+		t.Errorf("want %v, got %v", []uint{2, 4}, aHeads)
 	}
 
-	wantHeads, aHeads = []uint{}, g.ReadSources(a)
-	if !reflect.DeepEqual(wantHeads, aHeads) {
-		t.Errorf("want %v, got %v", wantHeads, aHeads)
+	aHeads, _ = g.ReadSources(a)
+	if !reflect.DeepEqual([]uint{}, aHeads) {
+		t.Errorf("want %v, got %v", []uint{}, aHeads)
 	}
 
-	wantHeads, bHeads := []uint{}, g.ReadTargets(b)
-	if !reflect.DeepEqual(wantHeads, bHeads) {
-		t.Errorf("want %v, got %v", wantHeads, bHeads)
+	bHeads, _ := g.ReadTargets(b)
+	if !reflect.DeepEqual([]uint{}, bHeads) {
+		t.Errorf("want %v, got %v", []uint{}, bHeads)
 	}
 
-	wantHeads, bHeads = []uint{1}, g.ReadSources(b)
-	if !reflect.DeepEqual(wantHeads, bHeads) {
-		t.Errorf("want %v, got %v", wantHeads, bHeads)
+	bHeads, _ = g.ReadSources(b)
+	if !reflect.DeepEqual([]uint{1}, bHeads) {
+		t.Errorf("want %v, got %v", []uint{1}, bHeads)
 	}
 
-	wantHeads, cHeads := []uint{}, g.ReadTargets(c)
-	if !reflect.DeepEqual(wantHeads, cHeads) {
-		t.Errorf("want %v, got %v", wantHeads, cHeads)
+	cHeads, _ := g.ReadTargets(c)
+	if !reflect.DeepEqual([]uint{}, cHeads) {
+		t.Errorf("want %v, got %v", []uint{}, cHeads)
 	}
 
-	wantHeads, cHeads = []uint{1}, g.ReadSources(c)
-	if !reflect.DeepEqual(wantHeads, cHeads) {
-		t.Errorf("want %v, got %v", wantHeads, cHeads)
+	cHeads, _ = g.ReadSources(c)
+	if !reflect.DeepEqual([]uint{1}, cHeads) {
+		t.Errorf("want %v, got %v", []uint{1}, cHeads)
 	}
 
 	// b c
 
-	g.Delete(a)
-
-	wantHeads, cHeads = []uint{}, g.ReadSources(c)
-	if !reflect.DeepEqual(wantHeads, cHeads) {
-		t.Errorf("want %v, got %v", wantHeads, cHeads)
-	}
+	//g.Disconnect(a, b)
+	//g.Disconnect(a, c)
+	//
+	//wantHeads, cHeads = []uint{}, g.ReadSources(c)
+	//if !reflect.DeepEqual(wantHeads, cHeads) {
+	//	t.Errorf("want %v, got %v", wantHeads, cHeads)
+	//}
 }

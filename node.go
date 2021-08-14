@@ -30,6 +30,10 @@ func newNodeWithEntry(position position, entry entry) node {
 	return node{position: position, entry: entry}
 }
 
+func (n node) isValid() bool {
+	return n.entry[identifierPosition] == n.position
+}
+
 func (n node) getPosition() position {
 	return n.entry[identifierPosition]
 }
@@ -42,10 +46,10 @@ func (n node) toTarget() target {
 	return target(n)
 }
 
-func (n node) update(entries *entries) {
-	entries.update(n.position, n.entry)
+func (n node) update(entries *entries) error {
+	return entries.update(n.position, n.entry)
 }
 
-func (n node) append(entries *entries) {
-	entries.append(n.entry)
+func (n node) append(entries *entries) error {
+	return entries.append(n.entry)
 }

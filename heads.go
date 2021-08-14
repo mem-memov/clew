@@ -9,47 +9,68 @@ func newHeads(nodes *nodes, arrows *arrows) *heads {
 	return &heads{nodes: nodes, arrows: arrows}
 }
 
-func (h *heads) readHeads(target target) []position {
+func (h *heads) readHeads(target target) ([]position, error) {
 	heads := make([]position, 0)
 
 	if !target.hasFirstHead() {
-		return heads
+		return heads, nil
 	}
 
-	first := target.getFirstHead(h.arrows)
+	first, err := target.getFirstHead(h.arrows)
+	if err != nil {
+		return heads, err
+	}
+
 	next := first
 
 	heads = append(heads, next.toTail().getSourcePosition())
 
 	for {
 		if !next.hasNext() {
-			return heads
+			return heads, nil
 		}
-		next = next.getNext(h.arrows)
+		next, err = next.getNext(h.arrows)
+		if err != nil {
+			return heads, err
+		}
 		if next.isSame(first) {
-			return heads
+			return heads, nil
 		}
 		heads = append(heads, next.toTail().getSourcePosition())
 	}
 }
 
-func (h *heads) addHead(target target, new head) arrow {
+func (h *heads) addHead(target target, new head) (arrow, error) {
 
 	if !target.hasFirstHead() {
 
 		target = target.setFirstHead(new)
-		h.nodes.update(target.toNode())
+		err := h.nodes.update(target.toNode())
+		if err != nil {
+			return arrow{}, err
+		}
 	} else {
 
-		first := target.getFirstHead(h.arrows)
+		first, err := target.getFirstHead(h.arrows)
+		if err != nil {
+			return arrow{}, err
+		}
+
 		if first.hasPrevious() {
 
-			last := first.getPrevious(h.arrows)
+			last, err := first.getPrevious(h.arrows)
+			if err != nil {
+				return arrow{}, err
+			}
 			last = last.setNext(new)
 			new = new.setPrevious(last)
 			new = new.setNext(first)
 			first = first.setPrevious(new)
-			h.arrows.update(last.toArrow())
+
+			err = h.arrows.update(last.toArrow())
+			if err != nil {
+				return arrow{}, err
+			}
 		} else {
 
 			first = first.setPrevious(new)
@@ -57,59 +78,98 @@ func (h *heads) addHead(target target, new head) arrow {
 			new = new.setPrevious(first)
 			new = new.setNext(first)
 		}
-		h.arrows.update(first.toArrow())
+
+		err = h.arrows.update(first.toArrow())
+		if err != nil {
+			return arrow{}, err
+		}
 	}
 
-	return new.toArrow()
+	return new.toArrow(), nil
 }
 
-func (h *heads) removeHead(target target, removed head) {
+func (h *heads) removeHead(target target, removed head) error {
 
-	first := target.getFirstHead(h.arrows)
+	first, err := target.getFirstHead(h.arrows)
+	if err != nil {
+		return err
+	}
+
 	if first.isSame(removed) {
 		if first.isSurrounded() {
-			next := first.getPrevious(h.arrows).bindNext(first.getNext(h.arrows), h.arrows)
+			previous, err := first.getPrevious(h.arrows)
+			if err != nil {
+				return err
+			}
+
+			next, err := first.getNext(h.arrows)
+			if err != nil {
+				return err
+			}
+
+			next = previous.bindNext(next, h.arrows)
 			target = target.setFirstHead(next)
 		} else if first.isPaired() {
-			second := first.getNext(h.arrows)
+			second, err := first.getNext(h.arrows)
+			if err != nil {
+				return err
+			}
+
 			second = second.deletePrevious()
 			second = second.deleteNext()
 			target = target.setFirstHead(second)
 		} else if first.isAlone() {
 			target = target.deleteFirstHead()
 		}
-		h.nodes.update(target.toNode())
-		return
+		return h.nodes.update(target.toNode())
 	}
 
 	previous := first
 
 	for {
-		current := previous.getNext(h.arrows)
+		current, err := previous.getNext(h.arrows)
+		if err != nil {
+			return err
+		}
+
 		if current.isSame(first) {
-			return
+			return nil
 		}
 		if current.isSame(removed) {
-			previous.bindNext(current.getNext(h.arrows), h.arrows)
-			return
+			next, err := current.getNext(h.arrows)
+			if err != nil {
+				return err
+			}
+
+			previous.bindNext(next, h.arrows)
+			return nil
 		}
 		previous = current
 	}
 }
 
-func (h *heads) deleteTarget(target target) {
+func (h *heads) deleteTarget(target target) error {
 	if !target.hasFirstHead() {
-		return
+		return nil
 	}
 
-	first := target.getFirstHead(h.arrows)
+	first, err := target.getFirstHead(h.arrows)
+	if err != nil {
+		return err
+	}
+
 	next := first
+	next.toTail()
 	h.arrows.produceHole(next.toArrow())
 
 	for {
-		next = next.getNext(h.arrows)
+		next, err = next.getNext(h.arrows)
+		if err != nil {
+			return err
+		}
+
 		if next.isSame(first) {
-			return
+			return nil
 		}
 		h.arrows.produceHole(next.toArrow())
 	}

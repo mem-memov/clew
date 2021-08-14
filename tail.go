@@ -18,8 +18,13 @@ func (t tail) hasNext() bool {
 	return t.entry[nextTailPosition] != void
 }
 
-func (t tail) getNext(arrows *arrows) tail {
-	return arrows.read(t.entry[nextTailPosition]).toTail()
+func (t tail) getNext(arrows *arrows) (tail, error) {
+	arrow, err := arrows.read(t.entry[nextTailPosition])
+	if err != nil {
+		return tail{}, err
+	}
+
+	return arrow.toTail(), nil
 }
 
 func (t tail) setNext(arrow tail) tail {
@@ -36,8 +41,13 @@ func (t tail) hasPrevious() bool {
 	return t.entry[previousTailPosition] != void
 }
 
-func (t tail) getPrevious(arrows *arrows) tail {
-	return arrows.read(t.entry[previousTailPosition]).toTail()
+func (t tail) getPrevious(arrows *arrows) (tail, error) {
+	arrow, err := arrows.read(t.entry[previousTailPosition])
+	if err != nil {
+		return tail{}, err
+	}
+
+	return arrow.toTail(), nil
 }
 
 func (t tail) setPrevious(tail tail) tail {
@@ -62,12 +72,21 @@ func (t tail) isAlone() bool {
 	return t.entry[previousTailPosition] == void && t.entry[nextTailPosition] == void
 }
 
-func (t tail) bindNext(next tail, arrows *arrows) tail {
+func (t tail) bindNext(next tail, arrows *arrows) (tail, error) {
 	current := t.setNext(next)
 	next = next.setPrevious(current)
-	arrows.update(current.toArrow())
-	arrows.update(next.toArrow())
-	return next
+
+	err := arrows.update(current.toArrow())
+	if err != nil {
+		return tail{}, err
+	}
+
+	err = arrows.update(next.toArrow())
+	if err != nil {
+		return tail{}, err
+	}
+
+	return next, nil
 }
 
 func (t tail) toArrow() arrow {

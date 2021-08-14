@@ -25,22 +25,26 @@ func existingArrow(position position, entry entry) arrow {
 	return arrow{position: position, entry: entry}
 }
 
-func (e arrow) getPosition() position {
-	return e.position
+func (a arrow) isValid() bool {
+	return a.entry[targetPosition] != a.position
 }
 
-func (e arrow) toTail() tail {
-	return tail(e)
+func (a arrow) getPosition() position {
+	return a.position
 }
 
-func (e arrow) toHead() head {
-	return head(e)
+func (a arrow) toTail() tail {
+	return tail(a)
 }
 
-func (e arrow) update(entries *entries) {
-	entries.update(e.position, e.entry)
+func (a arrow) toHead() head {
+	return head(a)
 }
 
-func (e arrow) append(entries *entries) {
-	entries.append(e.entry)
+func (a arrow) update(entries *entries) error {
+	return entries.update(a.position, a.entry)
+}
+
+func (a arrow) append(entries *entries) error {
+	return entries.append(a.entry)
 }
