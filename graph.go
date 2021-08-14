@@ -89,7 +89,7 @@ func (g *Graph) Connect(source uint, target uint) error {
 }
 
 func (g *Graph) Disconnect(source uint, target uint) error {
-	mix, err := g.mixes.read(position(target))
+	mix, err := g.mixes.read(position(source))
 	if err != nil {
 		return err
 	}

@@ -108,6 +108,10 @@ func (m mix) removeTarget(position position) error {
 	}
 
 	for {
+		if !tail.hasNext() {
+			return nil
+		}
+
 		tail, err = tail.getNext(m.arrows)
 		if err != nil {
 			return err
