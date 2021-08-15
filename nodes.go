@@ -3,14 +3,14 @@ package clew
 import "fmt"
 
 type nodes struct {
-	entries  *entries
-	holes    *holes
+	entries *entries
+	holes   *holes
 }
 
 func newNodes(entries *entries, holes *holes) *nodes {
 	return &nodes{
-		entries:  entries,
-		holes:    holes,
+		entries: entries,
+		holes:   holes,
 	}
 }
 

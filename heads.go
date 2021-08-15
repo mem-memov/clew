@@ -29,10 +29,12 @@ func (h *heads) readHeads(target target) ([]position, error) {
 		if !next.hasNext() {
 			return heads, nil
 		}
+
 		next, err = next.getNext(h.arrows)
 		if err != nil {
 			return heads, err
 		}
+
 		if next.isSame(first) {
 			return heads, nil
 		}

@@ -507,11 +507,10 @@ func TestGraph(t *testing.T) {
 
 	// b c
 
-	g.Disconnect(a, b)
-	g.Disconnect(a, c)
+	g.Delete(a)
 
-	//cHeads, _ = g.ReadSources(c)
-	//if !reflect.DeepEqual([]uint{}, cHeads) {
-	//	t.Errorf("want %v, got %v", []uint{}, cHeads)
-	//}
+	cHeads, _ = g.ReadSources(c)
+	if !reflect.DeepEqual([]uint{}, cHeads) {
+		t.Errorf("want %v, got %v", []uint{}, cHeads)
+	}
 }
