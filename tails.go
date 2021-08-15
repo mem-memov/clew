@@ -48,10 +48,6 @@ func (t *tails) addTail(source source, new tail) (source, arrow, error) {
 
 		source = source.setFirstTail(new)
 
-		err := t.nodes.update(source.toNode())
-		if err != nil {
-			return source, arrow{}, err
-		}
 	} else {
 
 		first, err := source.getFirstTail(t.arrows)
@@ -85,6 +81,13 @@ func (t *tails) addTail(source source, new tail) (source, arrow, error) {
 		if err != nil {
 			return source, arrow{}, err
 		}
+	}
+
+	source = source.incrementTailCount()
+
+	err := t.nodes.update(source.toNode())
+	if err != nil {
+		return source, arrow{}, err
 	}
 
 	return source, new.toArrow(), nil
@@ -128,6 +131,8 @@ func (t *tails) removeTail(source source, removed tail) error {
 			source = source.deleteFirstTail()
 		}
 
+		source = source.decrementTailCount()
+
 		return t.nodes.update(source.toNode())
 	}
 
@@ -158,7 +163,9 @@ func (t *tails) removeTail(source source, removed tail) error {
 				return err
 			}
 
-			return nil
+			source = source.decrementTailCount()
+
+			return t.nodes.update(source.toNode())
 		}
 		previous = current
 	}

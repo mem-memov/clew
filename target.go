@@ -29,6 +29,16 @@ func (t target) deleteFirstHead() target {
 	return t
 }
 
+func (t target) incrementHeadCount() target {
+	t.entry[headCountPosition]++
+	return t
+}
+
+func (t target) decrementHeadCount() target {
+	t.entry[headCountPosition]--
+	return t
+}
+
 func (t target) toNode() node {
 	return node(t)
 }

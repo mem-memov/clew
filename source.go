@@ -29,6 +29,16 @@ func (s source) deleteFirstTail() source {
 	return s
 }
 
+func (s source) incrementTailCount() source {
+	s.entry[tailCountPosition]++
+	return s
+}
+
+func (s source) decrementTailCount() source {
+	s.entry[tailCountPosition]--
+	return s
+}
+
 func (s source) toNode() node {
 	return node(s)
 }

@@ -47,10 +47,7 @@ func (h *heads) addHead(target target, new head) (arrow, error) {
 	if !target.hasFirstHead() {
 
 		target = target.setFirstHead(new)
-		err := h.nodes.update(target.toNode())
-		if err != nil {
-			return arrow{}, err
-		}
+
 	} else {
 
 		first, err := target.getFirstHead(h.arrows)
@@ -85,6 +82,13 @@ func (h *heads) addHead(target target, new head) (arrow, error) {
 		if err != nil {
 			return arrow{}, err
 		}
+	}
+
+	target = target.incrementHeadCount()
+
+	err := h.nodes.update(target.toNode())
+	if err != nil {
+		return arrow{}, err
 	}
 
 	return new.toArrow(), nil
@@ -127,6 +131,9 @@ func (h *heads) removeHead(target target, removed head) error {
 		} else if first.isAlone() {
 			target = target.deleteFirstHead()
 		}
+
+		target = target.decrementHeadCount()
+
 		return h.nodes.update(target.toNode())
 	}
 
@@ -156,7 +163,9 @@ func (h *heads) removeHead(target target, removed head) error {
 				return err
 			}
 
-			return nil
+			target = target.decrementHeadCount()
+
+			return h.nodes.update(target.toNode())
 		}
 		previous = current
 	}
