@@ -152,7 +152,7 @@ func (m mix) delete() error {
 		return err
 	}
 
-	err = m.heads.deleteTarget(m.node.toTarget())
+	err = m.heads.deleteTarget(m.node.toTarget(), m.tails)
 	if err != nil {
 		return err
 	}

@@ -203,15 +203,46 @@ func TestGraph_Delete1With1Connection(t *testing.T) {
 	}
 }
 
+func TestGraph_Delete1WithIAndOutConnections(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 4}, // 1 a
+		{2, 0, 0, 0, 4, 5}, // 2 b
+		{3, 0, 0, 0, 5, 0}, // 3 c
+		{2, 0, 0, 1, 0, 0}, // 4 a -> b
+		{3, 0, 0, 2, 0, 0}, // 5 b -> c
+	}
+
+	err := g.Delete(2)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 0}, // 1 a
+		{4, 0, 0, 0, 0, 0}, // 2 hole
+		{3, 0, 0, 0, 0, 0}, // 3 c
+		{5, 0, 0, 0, 0, 0}, // 4 hole
+		{0, 0, 0, 0, 0, 0}, // 5 hole
+	}) {
+		t.Error(s)
+	}
+}
+
 func TestGraph_Connect1To2Different(t *testing.T) {
 	s := NewSliceStorage()
 	g, _ := NewGraph(s)
 
 	s.entries = [][6]uint{
-		{0, 0, 0, 0, 0, 0},
-		{1, 0, 0, 0, 0, 0},
-		{2, 1, 0, 0, 0, 0},
-		{3, 2, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 0}, // 1 a
+		{2, 0, 0, 0, 0, 0}, // 2 b
+		{3, 0, 0, 0, 0, 0}, // 3 c
 	}
 
 	err := g.Connect(1, 2)
@@ -229,10 +260,45 @@ func TestGraph_Connect1To2Different(t *testing.T) {
 	if !reflect.DeepEqual(s.entries, [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
 		{1, 0, 0, 0, 0, 4}, // 1 a
-		{2, 1, 0, 0, 4, 0}, // 2 b
-		{3, 2, 0, 0, 5, 0}, // 3 c
+		{2, 0, 0, 0, 4, 0}, // 2 b
+		{3, 0, 0, 0, 5, 0}, // 3 c
 		{2, 0, 0, 1, 5, 5}, // 4 a -> b
 		{3, 0, 0, 1, 4, 4}, // 5 a -> c
+	}) {
+		t.Error(s)
+	}
+}
+
+func TestGraph_Connect1InAndOut(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 0}, // 1 a
+		{2, 0, 0, 0, 0, 0}, // 2 b
+		{3, 0, 0, 0, 0, 0}, // 3 c
+	}
+
+	err := g.Connect(1, 2)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	err = g.Connect(2, 3)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 4}, // 1 a
+		{2, 0, 0, 0, 4, 5}, // 2 b
+		{3, 0, 0, 0, 5, 0}, // 3 c
+		{2, 0, 0, 1, 0, 0}, // 4 a -> b
+		{3, 0, 0, 2, 0, 0}, // 5 b -> c
 	}) {
 		t.Error(s)
 	}
@@ -441,11 +507,11 @@ func TestGraph(t *testing.T) {
 
 	// b c
 
-	//g.Disconnect(a, b)
-	//g.Disconnect(a, c)
-	//
-	//wantHeads, cHeads = []uint{}, g.ReadSources(c)
-	//if !reflect.DeepEqual(wantHeads, cHeads) {
-	//	t.Errorf("want %v, got %v", wantHeads, cHeads)
+	g.Disconnect(a, b)
+	g.Disconnect(a, c)
+
+	//cHeads, _ = g.ReadSources(c)
+	//if !reflect.DeepEqual([]uint{}, cHeads) {
+	//	t.Errorf("want %v, got %v", []uint{}, cHeads)
 	//}
 }

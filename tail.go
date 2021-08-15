@@ -14,6 +14,14 @@ func (t tail) getSourcePosition() position {
 	return t.entry[sourcePosition]
 }
 
+func (t tail) getSource(nodes *nodes) (source, error) {
+	node, err := nodes.read(t.entry[sourcePosition])
+	if err != nil {
+		return source{}, err
+	}
+	return node.toSource(), nil
+}
+
 func (t tail) hasNext() bool {
 	return t.entry[nextTailPosition] != void
 }

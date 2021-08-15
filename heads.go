@@ -156,7 +156,7 @@ func (h *heads) removeHead(target target, removed head) error {
 	}
 }
 
-func (h *heads) deleteTarget(target target) error {
+func (h *heads) deleteTarget(target target, tails *tails) error {
 	if !target.hasFirstHead() {
 		return nil
 	}
@@ -169,6 +169,17 @@ func (h *heads) deleteTarget(target target) error {
 	next := first
 	next.toTail()
 	err = h.arrows.produceHole(next.toArrow())
+	if err != nil {
+		return err
+	}
+
+	tail := next.toTail()
+	source, err := tail.getSource(h.nodes)
+	if err != nil {
+		return err
+	}
+
+	err = tails.removeTail(source, tail)
 	if err != nil {
 		return err
 	}
@@ -188,6 +199,17 @@ func (h *heads) deleteTarget(target target) error {
 		}
 
 		err = h.arrows.produceHole(next.toArrow())
+		if err != nil {
+			return err
+		}
+
+		tail := next.toTail()
+		source, err := tail.getSource(h.nodes)
+		if err != nil {
+			return err
+		}
+
+		err = tails.removeTail(source, tail)
 		if err != nil {
 			return err
 		}
