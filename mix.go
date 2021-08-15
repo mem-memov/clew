@@ -147,7 +147,7 @@ func (m mix) removeTarget(position position) error {
 }
 
 func (m mix) delete() error {
-	err := m.tails.deleteSource(m.node.toSource())
+	err := m.tails.deleteSource(m.node.toSource(), m.heads)
 	if err != nil {
 		return err
 	}

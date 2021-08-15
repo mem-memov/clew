@@ -5,14 +5,12 @@ import "fmt"
 type nodes struct {
 	entries  *entries
 	holes    *holes
-	lastNode position
 }
 
-func newNodes(entries *entries, holes *holes, lastNode position) *nodes {
+func newNodes(entries *entries, holes *holes) *nodes {
 	return &nodes{
 		entries:  entries,
 		holes:    holes,
-		lastNode: lastNode,
 	}
 }
 
@@ -28,14 +26,12 @@ func (n *nodes) create() (node, error) {
 			return node{}, err
 		}
 
-		node := newNode(position, n.lastNode)
+		node := newNode(position)
 
 		err = node.update(n.entries)
 		if err != nil {
 			return node, err
 		}
-
-		n.lastNode = node.getPosition()
 
 		return node, nil
 	}
@@ -45,14 +41,12 @@ func (n *nodes) create() (node, error) {
 		return node{}, err
 	}
 
-	node := newNode(position, n.lastNode)
+	node := newNode(position)
 
 	err = node.update(n.entries)
 	if err != nil {
 		return node, err
 	}
-
-	n.lastNode = node.getPosition()
 
 	return node, nil
 }

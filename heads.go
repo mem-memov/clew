@@ -174,6 +174,10 @@ func (h *heads) deleteTarget(target target) error {
 	}
 
 	for {
+		if !next.hasNext() {
+			return nil
+		}
+
 		next, err = next.getNext(h.arrows)
 		if err != nil {
 			return err

@@ -1,12 +1,12 @@
 package clew
 
 const (
-	identifierPosition   position = 0
-	previousNodePosition position = 1
-	headCountPosition    position = 2
-	firstHeadPosition    position = 3
-	tailCountPosition    position = 4
-	firstTailPosition    position = 5
+	identifierPosition position = 0
+	emptyPosition      position = 1
+	headCountPosition  position = 2
+	tailCountPosition  position = 3
+	firstHeadPosition  position = 4
+	firstTailPosition  position = 5
 )
 
 type node struct {
@@ -14,13 +14,13 @@ type node struct {
 	entry    entry
 }
 
-func newNode(new position, previous position) node {
+func newNode(new position) node {
 	entry := newVoidEntry()
 	entry[identifierPosition] = new
-	entry[previousNodePosition] = previous
+	entry[emptyPosition] = 0
 	entry[headCountPosition] = 0
-	entry[firstHeadPosition] = void
 	entry[tailCountPosition] = 0
+	entry[firstHeadPosition] = void
 	entry[firstTailPosition] = void
 
 	return node{position: new, entry: entry}

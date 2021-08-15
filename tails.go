@@ -127,6 +127,7 @@ func (t *tails) removeTail(source source, removed tail) error {
 		} else if first.isAlone() {
 			source = source.deleteFirstTail()
 		}
+
 		return t.nodes.update(source.toNode())
 	}
 
@@ -159,7 +160,7 @@ func (t *tails) removeTail(source source, removed tail) error {
 	}
 }
 
-func (t *tails) deleteSource(source source) error {
+func (t *tails) deleteSource(source source, heads *heads) error {
 	if !source.hasFirstTail() {
 		return nil
 	}
@@ -170,12 +171,33 @@ func (t *tails) deleteSource(source source) error {
 	}
 
 	next := first
+
+	err = t.removeTail(source, next)
+	if err != nil {
+		return err
+	}
+
 	err = t.arrows.produceHole(next.toArrow())
 	if err != nil {
 		return err
 	}
 
+	head := next.toHead()
+	target, err := head.getTarget(t.nodes)
+	if err != nil {
+		return err
+	}
+
+	err = heads.removeHead(target, head)
+	if err != nil {
+		return err
+	}
+
 	for {
+		if !next.hasNext() {
+			return nil
+		}
+
 		next, err = next.getNext(t.arrows)
 		if err != nil {
 			return err
@@ -185,7 +207,23 @@ func (t *tails) deleteSource(source source) error {
 			return nil
 		}
 
+		err = t.removeTail(source, next)
+		if err != nil {
+			return err
+		}
+
 		err = t.arrows.produceHole(next.toArrow())
+		if err != nil {
+			return err
+		}
+
+		head := next.toHead()
+		target, err := head.getTarget(t.nodes)
+		if err != nil {
+			return err
+		}
+
+		err = heads.removeHead(target, head)
 		if err != nil {
 			return err
 		}

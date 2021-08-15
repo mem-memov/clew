@@ -28,7 +28,7 @@ func TestGraph_Create(t *testing.T) {
 	s := NewSliceStorage()
 	g, _ := NewGraph(s)
 
-	id, err := g.Create()
+	id, err := g.Create(0)
 
 	if err != nil {
 		t.Fail()
@@ -41,6 +41,60 @@ func TestGraph_Create(t *testing.T) {
 	if !reflect.DeepEqual(s.entries, [][6]uint{
 		{0, 0, 0, 0, 0, 0},
 		{1, 0, 0, 0, 0, 0},
+	}) {
+		t.Fail()
+	}
+}
+
+func TestGraph_CreateClass(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+	}
+
+	id, err := g.Create(0)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if id != uint(1) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 0}, // class A
+	}) {
+		t.Fail()
+	}
+}
+
+func TestGraph_Create1Classified(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 0}, // class A
+	}
+
+	id, err := g.Create()
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if id != uint(2) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{2, 1, 0, 0, 0, 0},
 	}) {
 		t.Fail()
 	}
@@ -61,6 +115,68 @@ func TestGraph_Create3(t *testing.T) {
 		{3, 2, 0, 0, 0, 0},
 	}) {
 		t.Fail()
+	}
+}
+
+func TestGraph_Delete1(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+	}
+
+	err := g.Delete(1)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0},
+	}) {
+		t.Error(s)
+	}
+}
+
+func TestGraph_Delete3(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0},
+		{2, 1, 0, 0, 0, 0},
+		{3, 2, 0, 0, 0, 0},
+	}
+
+	err := g.Delete(1)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	err = g.Delete(2)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	err = g.Delete(3)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{0, 0, 0, 0, 0, 0}, // 1 hole
+		{1, 0, 0, 0, 0, 0}, // 2 hole
+		{2, 0, 0, 0, 0, 0}, // 3 hole
+	}) {
+		t.Error(s)
 	}
 }
 
@@ -109,6 +225,33 @@ func TestGraph_Connect1ToItself(t *testing.T) {
 		{0, 0, 0, 0, 0, 0}, // 0
 		{1, 0, 0, 2, 0, 2}, // 1 a
 		{1, 0, 0, 1, 0, 0}, // 2 a -> a
+	}) {
+		t.Error(s)
+	}
+}
+
+func TestGraph_Delete1With1Connection(t *testing.T) {
+	s := NewSliceStorage()
+	g, _ := NewGraph(s)
+
+	s.entries = [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 3}, // 1 a
+		{2, 1, 0, 3, 0, 0}, // 2 b
+		{2, 0, 0, 1, 0, 0}, // 3 a -> b
+	}
+
+	err := g.Delete(1)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(s.entries, [][6]uint{
+		{0, 0, 0, 0, 0, 0}, // 0
+		{3, 0, 0, 0, 0, 0}, // 1 hole
+		{2, 0, 0, 0, 0, 0}, // 2 b
+		{0, 0, 0, 0, 0, 0}, // 3 hole
 	}) {
 		t.Error(s)
 	}
@@ -233,10 +376,10 @@ func TestGraph_Disconnect(t *testing.T) {
 	g, _ := NewGraph(s)
 
 	s.entries = [][6]uint{
-		{0, 0, 0, 0, 0, 0},
-		{1, 0, 0, 0, 0, 3},
-		{2, 1, 0, 3, 0, 0},
-		{2, 0, 0, 1, 0, 0},
+		{0, 0, 0, 0, 0, 0}, // 0
+		{1, 0, 0, 0, 0, 3}, // 1 a
+		{2, 1, 0, 3, 0, 0}, // 2 b
+		{2, 0, 0, 1, 0, 0}, // 3 a -> b
 	}
 
 	err := g.Disconnect(1, 2)

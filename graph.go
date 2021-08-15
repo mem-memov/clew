@@ -12,7 +12,7 @@ func NewGraph(storage storage) (*Graph, error) {
 		return nil, err
 	}
 	holes := newHoles(entries, void)
-	nodes := newNodes(entries, holes, void)
+	nodes := newNodes(entries, holes)
 	arrows := newArrows(entries, holes)
 	heads := newHeads(nodes, arrows)
 	tails := newTails(nodes, arrows)
