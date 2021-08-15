@@ -133,6 +133,10 @@ func (h *heads) removeHead(target target, removed head) error {
 	previous := first
 
 	for {
+		if previous.hasNext() {
+			return nil
+		}
+
 		current, err := previous.getNext(h.arrows)
 		if err != nil {
 			return err

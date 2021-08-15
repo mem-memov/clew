@@ -134,6 +134,10 @@ func (t *tails) removeTail(source source, removed tail) error {
 	previous := first
 
 	for {
+		if !previous.hasNext() {
+			return nil
+		}
+
 		current, err := previous.getNext(t.arrows)
 		if err != nil {
 			return err
