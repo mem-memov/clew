@@ -1,16 +1,13 @@
 package clew
 
 type Graph struct {
-	mixes *mixes
+	initializer *initializer
+	mixes       *mixes
 }
 
 func NewGraph(storage storage) (*Graph, error) {
 	entries := newEntries(storage)
-	// a voidEntry which makes 0 to a special value, that means no position has been set, it may contain graph metadata
-	_, err := entries.create()
-	if err != nil {
-		return nil, err
-	}
+	initializer := newInitializer(entries)
 	holes := newHoles(entries, void)
 	nodes := newNodes(entries, holes)
 	arrows := newArrows(entries, holes)
@@ -18,6 +15,7 @@ func NewGraph(storage storage) (*Graph, error) {
 	tails := newTails(nodes, arrows)
 
 	return &Graph{
+		initializer: initializer,
 		mixes: newMixes(
 			nodes,
 			arrows,
@@ -28,6 +26,11 @@ func NewGraph(storage storage) (*Graph, error) {
 }
 
 func (g *Graph) Create() (uint, error) {
+	err := g.initializer.initialize()
+	if err != nil {
+		return 0, err
+	}
+
 	mix, err := g.mixes.create()
 	if err != nil {
 		return 0, err
@@ -37,6 +40,11 @@ func (g *Graph) Create() (uint, error) {
 }
 
 func (g *Graph) ReadSources(target uint) ([]uint, error) {
+	err := g.initializer.initialize()
+	if err != nil {
+		return []uint{}, err
+	}
+
 	mix, err := g.mixes.read(position(target))
 	if err != nil {
 		return []uint{}, err
@@ -56,6 +64,11 @@ func (g *Graph) ReadSources(target uint) ([]uint, error) {
 }
 
 func (g *Graph) ReadTargets(source uint) ([]uint, error) {
+	err := g.initializer.initialize()
+	if err != nil {
+		return []uint{}, err
+	}
+
 	mix, err := g.mixes.read(position(source))
 	if err != nil {
 		return []uint{}, err
@@ -75,6 +88,11 @@ func (g *Graph) ReadTargets(source uint) ([]uint, error) {
 }
 
 func (g *Graph) Connect(source uint, target uint) error {
+	err := g.initializer.initialize()
+	if err != nil {
+		return err
+	}
+
 	mix, err := g.mixes.read(position(source))
 	if err != nil {
 		return err
@@ -89,6 +107,11 @@ func (g *Graph) Connect(source uint, target uint) error {
 }
 
 func (g *Graph) Disconnect(source uint, target uint) error {
+	err := g.initializer.initialize()
+	if err != nil {
+		return err
+	}
+
 	mix, err := g.mixes.read(position(source))
 	if err != nil {
 		return err
@@ -103,6 +126,11 @@ func (g *Graph) Disconnect(source uint, target uint) error {
 }
 
 func (g *Graph) Delete(source uint) error {
+	err := g.initializer.initialize()
+	if err != nil {
+		return err
+	}
+
 	mix, err := g.mixes.read(position(source))
 	if err != nil {
 		return err

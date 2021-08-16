@@ -16,10 +16,18 @@ func (s *sliceStorage) create() (uint, error) {
 }
 
 func (s *sliceStorage) read(position uint) ([6]uint, error) {
+	if position >= uint(len(s.entries)) {
+		return [6]uint{}, fmt.Errorf("writing beyond storage border when reading entry in storage: %d", position)
+	}
+
 	return s.entries[int(position)], nil
 }
 
 func (s *sliceStorage) update(position uint, entry [6]uint) error {
+	if position >= uint(len(s.entries)) {
+		return fmt.Errorf("writing beyond storage border when updating entry in storage: %d", position)
+	}
+
 	s.entries[int(position)] = entry
 	return nil
 }
