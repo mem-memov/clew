@@ -35,6 +35,7 @@ func (m mix) addTarget(position position) error {
 
 	target := node.toTarget()
 
+	// optimizing next step
 	if target.isSmaller(source) {
 		return newMix(node, m.nodes, m.arrows, m.heads, m.tails).addSource(source.toNode().getPosition())
 	}
@@ -83,6 +84,7 @@ func (m mix) addSource(position position) error {
 
 	source := node.toSource()
 
+	// optimizing next step
 	if source.isSmaller(target) {
 		return newMix(node, m.nodes, m.arrows, m.heads, m.tails).addTarget(target.toNode().getPosition())
 	}
