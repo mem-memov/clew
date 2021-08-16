@@ -39,6 +39,14 @@ func (s source) decrementTailCount() source {
 	return s
 }
 
+func (s source) isSmaller(target target) bool {
+	return s.entry[tailCountPosition] < target.countHeads()
+}
+
+func (s source) countTails() position {
+	return s.entry[tailCountPosition]
+}
+
 func (s source) toNode() node {
 	return node(s)
 }

@@ -35,12 +35,64 @@ func (m mix) addTarget(position position) error {
 
 	target := node.toTarget()
 
+	if target.isSmaller(source) {
+		return newMix(node, m.nodes, m.arrows, m.heads, m.tails).addSource(source.toNode().getPosition())
+	}
+
 	tails, err := m.tails.readTails(source)
 	if err != nil {
 		return err
 	}
 
 	for _, present := range tails {
+		if present == position {
+			return nil
+		}
+	}
+
+	arrow, err := m.arrows.create(source, target)
+	if err != nil {
+		return err
+	}
+
+	source, arrow, err = m.tails.addTail(source, arrow.toTail())
+	if err != nil {
+		return err
+	}
+
+	if source.toNode().isSame(target.toNode()) {
+		target = source.toTarget()
+	}
+
+	arrow, err = m.heads.addHead(target, arrow.toHead())
+	if err != nil {
+		return err
+	}
+
+	return m.arrows.update(arrow)
+}
+
+func (m mix) addSource(position position) error {
+
+	target := m.node.toTarget()
+
+	node, err := m.nodes.read(position)
+	if err != nil {
+		return err
+	}
+
+	source := node.toSource()
+
+	if source.isSmaller(target) {
+		return newMix(node, m.nodes, m.arrows, m.heads, m.tails).addTarget(target.toNode().getPosition())
+	}
+
+	heads, err := m.heads.readHeads(target)
+	if err != nil {
+		return err
+	}
+
+	for _, present := range heads {
 		if present == position {
 			return nil
 		}
