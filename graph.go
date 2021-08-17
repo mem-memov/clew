@@ -25,6 +25,12 @@ func NewGraph(storage storage) (*Graph, error) {
 	}, nil
 }
 
+func (g *Graph) Has(source uint) (bool, error) {
+	_, err := g.mixes.read(position(source))
+
+	return err == nil, nil
+}
+
 func (g *Graph) Create() (uint, error) {
 	err := g.initializer.initialize()
 	if err != nil {
