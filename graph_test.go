@@ -7,26 +7,16 @@ import (
 
 func TestGraph_NewGraph(t *testing.T) {
 	s := NewSliceStorage()
-	_, err := NewGraph(s)
+	NewGraph(s)
 
-	if err != nil {
-		t.Fail()
-	}
-
-	if len(s.entries) != 1 {
-		t.Fail()
-	}
-
-	if !reflect.DeepEqual(s.entries, [][6]uint{
-		{0, 0, 0, 0, 0, 0},
-	}) {
+	if len(s.entries) != 0 {
 		t.Fail()
 	}
 }
 
 func TestGraph_Create(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	id, err := g.Create()
 
@@ -48,7 +38,7 @@ func TestGraph_Create(t *testing.T) {
 
 func TestGraph_Create3(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	g.Create()
 	g.Create()
@@ -66,7 +56,7 @@ func TestGraph_Create3(t *testing.T) {
 
 func TestGraph_Delete1(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0},
@@ -89,7 +79,7 @@ func TestGraph_Delete1(t *testing.T) {
 
 func TestGraph_Delete3(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0},
@@ -128,7 +118,7 @@ func TestGraph_Delete3(t *testing.T) {
 
 func TestGraph_Connect1To1(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -154,7 +144,7 @@ func TestGraph_Connect1To1(t *testing.T) {
 
 func TestGraph_Connect1ToItself(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -178,7 +168,7 @@ func TestGraph_Connect1ToItself(t *testing.T) {
 
 func TestGraph_Delete1With1Connection(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -205,7 +195,7 @@ func TestGraph_Delete1With1Connection(t *testing.T) {
 
 func TestGraph_Delete1WithIAndOutConnections(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -236,7 +226,7 @@ func TestGraph_Delete1WithIAndOutConnections(t *testing.T) {
 
 func TestGraph_Connect1To2Different(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -271,7 +261,7 @@ func TestGraph_Connect1To2Different(t *testing.T) {
 
 func TestGraph_Connect1InAndOut(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -306,7 +296,7 @@ func TestGraph_Connect1InAndOut(t *testing.T) {
 
 func TestGraph_Connect2DifferentTo1(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -341,7 +331,7 @@ func TestGraph_Connect2DifferentTo1(t *testing.T) {
 
 func TestGraph_Connect1To3Different(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -385,7 +375,7 @@ func TestGraph_Connect1To3Different(t *testing.T) {
 
 func TestGraph_Disconnect(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -412,7 +402,7 @@ func TestGraph_Disconnect(t *testing.T) {
 
 func TestGraph_ConnectMutually(t *testing.T) {
 	s := NewSliceStorage()
-	g, _ := NewGraph(s)
+	g := NewGraph(s)
 
 	s.entries = [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
@@ -444,7 +434,7 @@ func TestGraph_ConnectMutually(t *testing.T) {
 }
 
 func TestGraph(t *testing.T) {
-	g, _ := NewGraph(NewSliceStorage())
+	g := NewGraph(NewSliceStorage())
 
 	// a
 

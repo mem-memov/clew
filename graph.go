@@ -5,7 +5,7 @@ type Graph struct {
 	mixes       *mixes
 }
 
-func NewGraph(storage storage) (*Graph, error) {
+func NewGraph(storage storage) *Graph {
 	entries := newEntries(storage)
 	initializer := newInitializer(entries)
 	holes := newHoles(entries, void)
@@ -22,7 +22,7 @@ func NewGraph(storage storage) (*Graph, error) {
 			heads,
 			tails,
 		),
-	}, nil
+	}
 }
 
 func (g *Graph) Has(source uint) (bool, error) {
