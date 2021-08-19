@@ -24,6 +24,31 @@ func (m mix) readTargets() ([]position, error) {
 	return m.tails.readTails(m.node.toSource())
 }
 
+func (m mix) setReference(position position) error {
+	reference, err := m.nodes.read(position)
+	if err != nil {
+		return err
+	}
+
+	m.node = m.node.setReference(reference)
+
+	err = m.nodes.update(m.node)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m mix) getReference() (position, error) {
+	reference, err := m.node.getReference(m.nodes)
+	if err != nil {
+		return 0, err
+	}
+
+	return reference.getPosition(), nil
+}
+
 func (m mix) addTarget(position position) error {
 
 	source := m.node.toSource()

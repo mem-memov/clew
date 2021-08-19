@@ -2,7 +2,7 @@ package clew
 
 const (
 	identifierPosition position = 0
-	emptyPosition      position = 1
+	referencePosition  position = 1
 	headCountPosition  position = 2
 	tailCountPosition  position = 3
 	firstHeadPosition  position = 4
@@ -17,7 +17,7 @@ type node struct {
 func newNode(new position) node {
 	entry := newVoidEntry()
 	entry[identifierPosition] = new
-	entry[emptyPosition] = 0
+	entry[referencePosition] = 0
 	entry[headCountPosition] = 0
 	entry[tailCountPosition] = 0
 	entry[firstHeadPosition] = void
@@ -40,6 +40,15 @@ func (n node) isSame(node node) bool {
 
 func (n node) getPosition() position {
 	return n.entry[identifierPosition]
+}
+
+func (n node) setReference(node node) node {
+	n.entry[referencePosition] = node.getPosition()
+	return n
+}
+
+func (n node) getReference(nodes *nodes) (node, error) {
+	return nodes.read(n.entry[referencePosition])
 }
 
 func (n node) toSource() source {

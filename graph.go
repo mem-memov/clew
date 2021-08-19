@@ -26,7 +26,7 @@ func NewGraph(storage storage) *Graph {
 }
 
 func (g *Graph) Has(source uint) (bool, error) {
-	_, err := g.mixes.read(position(source))
+	_, err := g.mixes.read(newPosition(source))
 
 	return err == nil, nil
 }
@@ -51,7 +51,7 @@ func (g *Graph) ReadSources(target uint) ([]uint, error) {
 		return []uint{}, err
 	}
 
-	mix, err := g.mixes.read(position(target))
+	mix, err := g.mixes.read(newPosition(target))
 	if err != nil {
 		return []uint{}, err
 	}
@@ -75,7 +75,7 @@ func (g *Graph) ReadTargets(source uint) ([]uint, error) {
 		return []uint{}, err
 	}
 
-	mix, err := g.mixes.read(position(source))
+	mix, err := g.mixes.read(newPosition(source))
 	if err != nil {
 		return []uint{}, err
 	}
@@ -93,18 +93,56 @@ func (g *Graph) ReadTargets(source uint) ([]uint, error) {
 	return tails, nil
 }
 
+func (g *Graph) SetReference(source uint, reference uint) error {
+	err := g.initializer.initialize()
+	if err != nil {
+		return err
+	}
+
+	mix, err := g.mixes.read(newPosition(source))
+	if err != nil {
+		return err
+	}
+
+	err = mix.setReference(newPosition(reference))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *Graph) GetReference(source uint) (uint, error) {
+	err := g.initializer.initialize()
+	if err != nil {
+		return 0, err
+	}
+
+	mix, err := g.mixes.read(newPosition(source))
+	if err != nil {
+		return 0, err
+	}
+
+	reference, err := mix.getReference()
+	if err != nil {
+		return 0, err
+	}
+
+	return reference.toInteger(), nil
+}
+
 func (g *Graph) Connect(source uint, target uint) error {
 	err := g.initializer.initialize()
 	if err != nil {
 		return err
 	}
 
-	mix, err := g.mixes.read(position(source))
+	mix, err := g.mixes.read(newPosition(source))
 	if err != nil {
 		return err
 	}
 
-	err = mix.addTarget(position(target))
+	err = mix.addTarget(newPosition(target))
 	if err != nil {
 		return err
 	}
@@ -118,12 +156,12 @@ func (g *Graph) Disconnect(source uint, target uint) error {
 		return err
 	}
 
-	mix, err := g.mixes.read(position(source))
+	mix, err := g.mixes.read(newPosition(source))
 	if err != nil {
 		return err
 	}
 
-	err = mix.removeTarget(position(target))
+	err = mix.removeTarget(newPosition(target))
 	if err != nil {
 		return err
 	}
@@ -137,7 +175,7 @@ func (g *Graph) Delete(source uint) error {
 		return err
 	}
 
-	mix, err := g.mixes.read(position(source))
+	mix, err := g.mixes.read(newPosition(source))
 	if err != nil {
 		return err
 	}
