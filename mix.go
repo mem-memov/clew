@@ -30,7 +30,13 @@ func (m mix) setReference(position position) error {
 		return err
 	}
 
-	m.node = m.node.setReference(reference)
+	reference = reference.setPreviousNode(m.node)
+	m.node = m.node.setNextNode(reference)
+
+	err = m.nodes.update(reference)
+	if err != nil {
+		return err
+	}
 
 	err = m.nodes.update(m.node)
 	if err != nil {
@@ -40,13 +46,14 @@ func (m mix) setReference(position position) error {
 	return nil
 }
 
-func (m mix) getReference() (position, error) {
-	reference, err := m.node.getReference(m.nodes)
+func (m mix) getReference() (position, position, error) {
+
+	previousNode, nextNode, err := m.node.getReference(m.nodes)
 	if err != nil {
-		return 0, err
+		return previousNode.getPosition(), nextNode.getPosition(), err
 	}
 
-	return reference.getPosition(), nil
+	return previousNode.getPosition(), nextNode.getPosition(), nil
 }
 
 func (m mix) addTarget(position position) error {

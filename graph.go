@@ -112,23 +112,23 @@ func (g *Graph) SetReference(source uint, reference uint) error {
 	return nil
 }
 
-func (g *Graph) GetReference(source uint) (uint, error) {
+func (g *Graph) GetReference(source uint) (uint, uint, error) {
 	err := g.initializer.initialize()
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	mix, err := g.mixes.read(newPosition(source))
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	reference, err := mix.getReference()
+	previousPosition, nextPosition, err := mix.getReference()
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	return reference.toInteger(), nil
+	return previousPosition.toInteger(), nextPosition.toInteger(), nil
 }
 
 func (g *Graph) Connect(source uint, target uint) error {

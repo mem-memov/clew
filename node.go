@@ -1,12 +1,12 @@
 package clew
 
 const (
-	identifierPosition position = 0
-	referencePosition  position = 1
-	headCountPosition  position = 2
-	tailCountPosition  position = 3
-	firstHeadPosition  position = 4
-	firstTailPosition  position = 5
+	previousNodePosition position = 0
+	nextNodePosition     position = 1
+	headCountPosition    position = 2
+	tailCountPosition    position = 3
+	firstHeadPosition    position = 4
+	firstTailPosition    position = 5
 )
 
 type node struct {
@@ -14,16 +14,16 @@ type node struct {
 	entry    entry
 }
 
-func newNode(new position) node {
+func newNode(position position) node {
 	entry := newVoidEntry()
-	entry[identifierPosition] = new
-	entry[referencePosition] = 0
+	entry[previousNodePosition] = 0
+	entry[nextNodePosition] = 0
 	entry[headCountPosition] = 0
 	entry[tailCountPosition] = 0
 	entry[firstHeadPosition] = void
 	entry[firstTailPosition] = void
 
-	return node{position: new, entry: entry}
+	return node{position: position, entry: entry}
 }
 
 func newNodeWithEntry(position position, entry entry) node {
@@ -31,24 +31,40 @@ func newNodeWithEntry(position position, entry entry) node {
 }
 
 func (n node) isValid() bool {
-	return n.entry[identifierPosition] == n.position
+	return n.position == n.position
 }
 
 func (n node) isSame(node node) bool {
-	return n.entry[identifierPosition] == node.getPosition()
+	return n.position == node.getPosition()
 }
 
 func (n node) getPosition() position {
-	return n.entry[identifierPosition]
+	return n.position
 }
 
-func (n node) setReference(node node) node {
-	n.entry[referencePosition] = node.getPosition()
+func (n node) setPreviousNode(node node) node {
+	n.entry[previousNodePosition] = node.getPosition()
 	return n
 }
 
-func (n node) getReference(nodes *nodes) (node, error) {
-	return nodes.read(n.entry[referencePosition])
+func (n node) setNextNode(node node) node {
+	n.entry[nextNodePosition] = node.getPosition()
+	return n
+}
+
+func (n node) getReference(nodes *nodes) (node, node, error) {
+
+	previousNode, err := nodes.read(n.entry[previousNodePosition])
+	if err != nil {
+		return node{}, node{}, err
+	}
+
+	nextNode, err := nodes.read(n.entry[nextNodePosition])
+	if err != nil {
+		return node{}, node{}, err
+	}
+
+	return previousNode,nextNode, nil
 }
 
 func (n node) toSource() source {

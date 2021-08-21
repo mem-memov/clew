@@ -30,7 +30,7 @@ func TestGraph_Create(t *testing.T) {
 
 	if !reflect.DeepEqual(s.entries, [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
-		{1, 0, 0, 0, 0, 0}, // 1 a
+		{0, 0, 0, 0, 0, 0}, // 1 a
 	}) {
 		t.Error(s)
 	}
@@ -46,9 +46,9 @@ func TestGraph_Create3(t *testing.T) {
 
 	if !reflect.DeepEqual(s.entries, [][6]uint{
 		{0, 0, 0, 0, 0, 0}, // 0
-		{1, 0, 0, 0, 0, 0}, // 1 a
-		{2, 0, 0, 0, 0, 0}, // 2 b
-		{3, 0, 0, 0, 0, 0}, // 3 c
+		{0, 0, 0, 0, 0, 0}, // 1 a
+		{0, 0, 0, 0, 0, 0}, // 2 b
+		{0, 0, 0, 0, 0, 0}, // 3 c
 	}) {
 		t.Error(s)
 	}
