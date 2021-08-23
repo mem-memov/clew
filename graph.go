@@ -180,6 +180,31 @@ func (g *Graph) Delete(source uint) error {
 		return err
 	}
 
+	previousNode, nextNode, err := mix.getReference()
+	if err != nil {
+		return err
+	}
+
+	previousMix, err := g.mixes.read(previousNode)
+	if err != nil {
+		return err
+	}
+
+	nextMix, err := g.mixes.read(nextNode)
+	if err != nil {
+		return err
+	}
+
+	err = previousMix.deleteNextReference()
+	if err != nil {
+		return err
+	}
+
+	err = nextMix.deletePreviousReference()
+	if err != nil {
+		return err
+	}
+
 	err = mix.delete()
 	if err != nil {
 		return err

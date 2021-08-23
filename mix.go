@@ -250,3 +250,13 @@ func (m mix) delete() error {
 
 	return nil
 }
+
+func (m mix) deletePreviousReference() error {
+	m.node = m.node.deletePreviousReference()
+	return m.nodes.update(m.node)
+}
+
+func (m mix) deleteNextReference() error {
+	m.node = m.node.deleteNextReference()
+	return m.nodes.update(m.node)
+}

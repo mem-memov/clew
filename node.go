@@ -67,6 +67,16 @@ func (n node) getReference(nodes *nodes) (node, node, error) {
 	return previousNode,nextNode, nil
 }
 
+func (n node) deletePreviousReference() node {
+	n.entry[previousNodePosition] = void
+	return n
+}
+
+func (n node) deleteNextReference() node {
+	n.entry[nextNodePosition] = void
+	return n
+}
+
 func (n node) toSource() source {
 	return source(n)
 }
